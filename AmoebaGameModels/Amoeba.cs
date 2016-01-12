@@ -5,23 +5,11 @@ using System.Text;
 
 namespace AmoebaGameModels
 {
-    public enum Direction
-    {
-        Still     = 0,
-        North     = 1,
-        South     = 2,
-        East      = 3,
-        West      = 4,
-        Northeast = 5,
-        Northwest = 6,
-        Southeast = 7,
-        Southwest = 8,
-    }
-
     class Amoeba
     {
         #region Public Fields
-        public Direction Direction { get; set; }
+        public Decimal Slope { get; set; }
+        public Boolean IsMovingRightToLeft { get; set; }
         #endregion
 
         #region Public Properties
@@ -51,7 +39,7 @@ namespace AmoebaGameModels
         public Decimal Eat (Amoeba Food)
         {
             this.size += Food.Size;
-            this.speed = 22 * Math.Pow(this.size, -0.439);
+            this.speed = 22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
             return this.size;
         }
 
