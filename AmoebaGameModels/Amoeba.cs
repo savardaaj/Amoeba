@@ -8,8 +8,13 @@ namespace AmoebaGameModels
     public class Amoeba
     {
         #region Public Fields
+        //The slope in the equation y=mx+b
         public Decimal Slope { get; set; }
-        public Boolean IsMovingRightToLeft { get; set; }
+
+        //The boolean indicates that the cell is moving positive to negative along the x or y depending on  IsMovingAlongTheY's value
+        public Boolean IsMovingNegative   { get; set; }
+        //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
+        public Boolean IsMovingAlongTheY  { get; set; }
         #endregion
 
         #region Public Properties

@@ -5,10 +5,22 @@ using System.Text;
 
 namespace AmoebaGameModels
 {
-    class GameBoard
+    static class GameBoard
     {
-        Int32 Width;
-        Int32 Height;
+        public static Int32 Width  { get { return GameBoard.width;  } }
+        public static Int32 Height 
+        { 
+            get 
+            { 
+                return GameBoard.height; 
+            } 
+        }
+
+
+        private static Int32 width  = -1;
+        private static Int32 height = -1;
+
+        public static Amoeba [] GamePieces;
 
     }
 }
