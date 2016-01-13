@@ -20,9 +20,9 @@ namespace AmoebaGameModels
         #region Public Properties
         //All players will begin at size 1.  Default size for food is .25
         public Decimal Size { get { return this.size; } }
-        public Decimal Speed { get; }
-        public Decimal XCoordinate { get; }
-        public Decimal YCoordinate { get; }
+        public Decimal Speed { get {return this.speed; } }
+        public Decimal XCoordinate { get {return this.xcoordinate; } }
+        public Decimal YCoordinate { get { return this.ycoordinate; } }
         #endregion
 
         #region Private Fields

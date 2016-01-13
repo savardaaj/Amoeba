@@ -1,6 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System;
+
 
 namespace Amoeba
 {
@@ -35,7 +40,7 @@ namespace Amoeba
             // TODO: Add your initialization logic here
 
             //create a new player amoeba
-            playerAmoeba = new AmoebaGameModels.Amoeba(1, (22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(playerAmoeba.size), -0.439))));
+            playerAmoeba = new AmoebaGameModels.Amoeba(1, (22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(1), -0.439))));
 
             base.Initialize();
         }
@@ -74,7 +79,13 @@ namespace Amoeba
                 Exit();
 
             // TODO: Add your update logic here
-
+            //m = y2 - y1 / x2 - x1
+            if (Mouse.GetState().Position.X != 0 || playerAmoeba.XCoordinate != 0)
+            {
+                playerAmoeba.Slope = (Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) /
+                                     (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
+                Console.WriteLine("Slope:" + playerAmoeba.Slope);
+            }
             base.Update(gameTime);
         }
 
@@ -88,7 +99,8 @@ namespace Amoeba
 
             spriteBatch.Begin();
             // TODO: Add your drawing code here
-            spriteBatch.Draw(playerTexture, new Vector2(50, 50), Color.White);
+            spriteBatch.Draw(playerTexture, new Vector2((float)(Mouse.GetState().Position.X - playerAmoeba.XCoordinate), (float)(Mouse.GetState().Position.Y - playerAmoeba.YCoordinate)), Color.White);
+
             spriteBatch.End();
             base.Draw(gameTime);
         }
