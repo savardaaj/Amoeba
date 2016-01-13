@@ -40,7 +40,7 @@ namespace Amoeba
             // TODO: Add your initialization logic here
 
             //create a new player amoeba
-            playerAmoeba = new AmoebaGameModels.Amoeba(1, (22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(1), -0.439))));
+            playerAmoeba = new AmoebaGameModels.Amoeba(1, (decimal).02);//(Decimal) 2.2 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(1), -0.439)));
 
             base.Initialize();
         }
@@ -80,11 +80,15 @@ namespace Amoeba
 
             // TODO: Add your update logic here
             //m = y2 - y1 / x2 - x1
-            if (Mouse.GetState().Position.X != 0 || playerAmoeba.XCoordinate != 0)
+            if (Mouse.GetState().Position.X - playerAmoeba.XCoordinate != 0)
             {
                 playerAmoeba.Slope = (Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) /
                                      (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
-                Console.WriteLine("Slope:" + playerAmoeba.Slope);
+                //Console.WriteLine("Slope:" + playerAmoeba.Slope);
+                //Console.WriteLine("PLayerX:" + playerAmoeba.XCoordinate);
+                //Console.WriteLine("PlayerY:" + playerAmoeba.YCoordinate);
+                //Console.WriteLine("MouseX:" + Mouse.GetState().Position.X);
+                //Console.WriteLine("MouseY:" + Mouse.GetState().Position.Y);
             }
             base.Update(gameTime);
         }
@@ -99,7 +103,16 @@ namespace Amoeba
 
             spriteBatch.Begin();
             // TODO: Add your drawing code here
-            spriteBatch.Draw(playerTexture, new Vector2((float)(Mouse.GetState().Position.X - playerAmoeba.XCoordinate), (float)(Mouse.GetState().Position.Y - playerAmoeba.YCoordinate)), Color.White);
+            Console.WriteLine("MouseX: " + Mouse.GetState().Position.X);
+            Console.WriteLine("MouseY: " + Mouse.GetState().Position.Y);
+            Console.WriteLine("playerX: " + playerAmoeba.XCoordinate);
+            Console.WriteLine("playerY: " + playerAmoeba.YCoordinate);
+            Console.WriteLine("Speed: " + playerAmoeba.Speed);
+
+
+            playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
+            playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
+            spriteBatch.Draw(playerTexture, new Vector2((float) playerAmoeba.XCoordinate, (float) playerAmoeba.YCoordinate ), Color.White);
 
             spriteBatch.End();
             base.Draw(gameTime);
