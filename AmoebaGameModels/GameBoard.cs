@@ -20,7 +20,7 @@ namespace AmoebaGameModels
         private static Int32 width  = -1;
         private static Int32 height = -1;
 
-        public static Amoeba [] GamePieces;
+        public static Dictionary <Guid, Amoeba> GamePieces;
 
     }
 }
