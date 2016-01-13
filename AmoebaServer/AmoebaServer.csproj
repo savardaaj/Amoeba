@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>31b29692-9aa9-4564-8e33-99b3b0820fcd</ProjectGuid>
+    <ProjectGuid>{EB0C5E55-0CBF-43AD-B1EE-C4ED63A13141}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AmoebaServer</RootNamespace>

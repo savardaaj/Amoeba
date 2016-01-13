@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AmoebaGameModels
 {
-    class Amoeba
+    public class Amoeba
     {
         #region Public Fields
         public Decimal Slope { get; set; }
@@ -28,15 +28,21 @@ namespace AmoebaGameModels
         #endregion
 
         #region Public Constructors
-        public Amoeba ()
+        public Amoeba()
         {
-            
+            this.size = (Decimal).25;
+        }
+
+        public Amoeba(Decimal size, Decimal speed)
+        {
+            this.size = size;
+            this.speed = speed;
         }
         #endregion
 
         #region Public Methods
 
-        public Decimal Eat (Amoeba Food)
+        public Decimal Eat(Amoeba Food)
         {
             this.size += Food.Size;
             this.speed = 22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));

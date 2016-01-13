@@ -11,6 +11,12 @@ namespace Amoeba
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Texture2D playerTexture;
+
+        KeyboardState currentKeyboardState;
+        KeyboardState previousKeyboardState;
+
+        AmoebaGameModels.Amoeba playerAmoeba;
 
         public Game1()
         {
@@ -28,6 +34,9 @@ namespace Amoeba
         {
             // TODO: Add your initialization logic here
 
+            //create a new player amoeba
+            playerAmoeba = new AmoebaGameModels.Amoeba(1, (22 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(playerAmoeba.size), -0.439))));
+
             base.Initialize();
         }
 
@@ -39,6 +48,8 @@ namespace Amoeba
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            playerTexture = Content.Load<Texture2D>("AmoebaPlayer");
 
             // TODO: use this.Content to load your game content here
         }
@@ -73,10 +84,12 @@ namespace Amoeba
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
+            spriteBatch.Begin();
             // TODO: Add your drawing code here
-
+            spriteBatch.Draw(playerTexture, new Vector2(50, 50), Color.White);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
