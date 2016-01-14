@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AmoebaGameModels
 {
@@ -22,6 +23,7 @@ namespace AmoebaGameModels
         public Decimal Speed { get { return this.speed; } }
         public Decimal XCoordinate { get; set; }
         public Decimal YCoordinate { get; set; }
+        public Texture2D texture { get; set; }
         #endregion
 
         #region Private Fields
