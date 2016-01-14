@@ -9,9 +9,12 @@ namespace AmoebaGameModels
     {
         #region Public Fields
         //The slope in the equation y=mx+b
-        public Decimal Slope  { get; set; }
-        public Guid    CellId { get; set; }
-
+        public Decimal Slope    { get; set; }
+        public Guid    CellId   { get; set; }
+        public Boolean Wordy    { get; set; }
+        
+        public Decimal XCoordinate { get; set; }
+        public Decimal YCoordinate { get; set; }
         //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
         public Boolean IsMovingAlongTheY  { get; set; }
         #endregion
@@ -19,29 +22,35 @@ namespace AmoebaGameModels
         #region Public Properties
         //All players will begin at size 1.  Default size for food is .25
         public Decimal Size { get { return this.size; } }
-        public Decimal Speed { get { return this.speed; } }
-        public Decimal XCoordinate { get; set; }
-        public Decimal YCoordinate { get; set; }
+        public Decimal Speed { get { return /*this.speed;*/ this.maxspeed; } }
+        public Decimal MaxSpeed { get { return this.maxspeed; } }
+        public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
+
         #endregion
 
         #region Private Fields
         private Decimal size;
         private Decimal speed;
+        private Decimal maxspeed;
+        private Decimal maxtraveldistance;
         #endregion
 
         #region Public Constructors
         public Amoeba()
         {
+            this.Wordy = false;
             CellId = Guid.NewGuid ();
             this.size = (Decimal).25;
+            this.maxspeed = (Decimal).05;
+            this.maxtraveldistance = (Decimal)2;
         }
 
-        public Amoeba(Decimal size, Decimal speed)
-        {
-            CellId = Guid.NewGuid ();
-            this.size = size;
-            this.speed = speed;
-        }
+        //public Amoeba(Decimal size, Decimal maxspeed)
+        //{
+        //    CellId = Guid.NewGuid ();
+        //    this.size = size;
+        //    this.maxspeed = (Decimal).00005;
+        //}
         #endregion
 
         #region Public Methods
@@ -50,11 +59,15 @@ namespace AmoebaGameModels
         {
             this.size += Food.Size;
             //this.speed = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
-            this.speed = 2;
+            //this.maxspeed = 2;
             return this.size;
         }
 
-
+        public Decimal SpeedBySize()
+        {
+            // determine the speed based on the size of the cell
+            return 1;
+        }
 
         #endregion
     }
