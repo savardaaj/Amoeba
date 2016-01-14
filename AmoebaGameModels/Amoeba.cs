@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AmoebaGameModels
 {
@@ -22,10 +23,17 @@ namespace AmoebaGameModels
         #region Public Properties
         //All players will begin at size 1.  Default size for food is .25
         public Decimal Size { get { return this.size; } }
+<<<<<<< HEAD
         public Decimal Speed { get { return /*this.speed;*/ this.maxspeed; } }
         public Decimal MaxSpeed { get { return this.maxspeed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
 
+=======
+        public Decimal Speed { get { return this.speed; } }
+        public Decimal XCoordinate { get; set; }
+        public Decimal YCoordinate { get; set; }
+        public Texture2D texture { get; set; }
+>>>>>>> 9ff5f857fe03186f028e1baff407c919ce6a9ea0
         #endregion
 
         #region Private Fields
