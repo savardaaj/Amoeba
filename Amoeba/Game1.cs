@@ -19,8 +19,8 @@ namespace Amoeba
     /// </summary>
     public class Game1 : Game
     {
-
-        int foodPopulation = 100;
+        public const int maxFoodPopulation = 100;
+        int currentFoodPopulation;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -45,7 +45,7 @@ namespace Amoeba
         Body body;
         const float unitToPixel = 100.0f;
         const float pixelToUnit = 1 / unitToPixel;
-        CircleShape farseerCircle;     
+        CircleShape farseerCircle;
         Vector2 playerPosition;
         Vector2 scale;
 
@@ -81,19 +81,18 @@ namespace Amoeba
             colorArray = new string[] { "BlueFood", "RedFood", "GreenFood", "YellowFood", "PinkFood" };
             randomNumberGen = new Random();
             randomColorGen = new Random();
+            currentFoodPopulation = 0;
 
             //initialize the farseer CircleShape object with radius 0.5f and density 1f
             farseerCircle = new CircleShape(0.5f, 1f);
 
-            //Create new food object
-            foodAmoeba = new AmoebaGameModels.Amoeba();
-
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
-            //for (int i = 0; i < 100; i++)
-            //{
-                
-            //    foodAmoebaList.Add(new AmoebaGameModels.Amoeba());
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                foodAmoeba = new AmoebaGameModels.Amoeba();
+                GetRandomsForFood(out foodAmoeba);              
+                foodAmoebaList.Add(foodAmoeba);              
+            }
 
             this.IsMouseVisible = true;    
             base.Initialize();
@@ -112,19 +111,13 @@ namespace Amoeba
             world = new World(new Vector2(0, 0));
 
             playerSkin = Content.Load<Texture2D>("AmoebaPlayer");
-
-            //Load textures into the game
-            foreach (string color in colorArray)
-            {
-                foodSkin = Content.Load<Texture2D>(color);
-            }
             
             Vector2 size = new Vector2(50, 50);
             body = BodyFactory.CreateCircle(world, size.X * pixelToUnit, 2, 1);
             body.BodyType = BodyType.Dynamic;
             body.Position = new Vector2((GraphicsDevice.Viewport.Width / 2.0f) * pixelToUnit, 0);
-
-            Fixture fixture = body.CreateFixture(farseerCircle);
+            
+            
         }
 
         /// <summary>
@@ -154,8 +147,17 @@ namespace Amoeba
                                      (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
             }
 
-            world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
+            //TODO: Collision detection 
+            //foreach (AmoebaGameModels.Amoeba randomFood in foodAmoebaList)
+            //{
+            //    if (playerFixture.OnCollision)
+            //    {
+                    
+            //        currentFoodPopulation--;
+            //    }
+            //}    
 
+            world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -307,19 +309,21 @@ namespace Amoeba
 
 =======
             //Draw food every 2 seconds
-            if (drawFoodCount > 60)
-            {
+            if (currentFoodPopulation < 100) {
                 GetRandomsForFood(out foodAmoeba);
-                foodAmoebaList.Add(foodAmoeba);
-                drawFoodCount = 0;
             }
 
             //Draw food to screen
             foreach (AmoebaGameModels.Amoeba randomFood in foodAmoebaList)
             {
-                spriteBatch.Draw(randomFood.texture, new Vector2((float)randomX, (float)randomY), Color.White);
+                if (randomFood.texture != null)
+                {
+                    spriteBatch.Draw(randomFood.texture, new Vector2((float)randomFood.XCoordinate, (float)randomFood.YCoordinate), Color.White);
+                    currentFoodPopulation++;
+                }
             }         
 
+            ///Draw player stuff
             playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
             playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
@@ -332,15 +336,22 @@ namespace Amoeba
             base.Draw(gameTime);
         }
 
+        /*
+         * This function generates random color and coordinates for food objects. 
+         * It also sets the texture and coordinates for the object 
+         */
         protected void GetRandomsForFood(out AmoebaGameModels.Amoeba foodAmoeba)
         {
             foodAmoeba = new AmoebaGameModels.Amoeba();
             //grab random color and x,y for food
             randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
-            randomX = randomNumberGen.Next(0, graphics.PreferredBackBufferWidth);
-            randomY = randomNumberGen.Next(0, graphics.PreferredBackBufferHeight);
+            randomX = randomNumberGen.Next(0, 1024);
+            randomY = randomNumberGen.Next(0, 768);
             foodSkin = Content.Load <Texture2D>(randomColor);
             foodAmoeba.texture = foodSkin;
+            foodAmoeba.XCoordinate = randomX;
+            foodAmoeba.YCoordinate = randomY;
+              
         }
     }
 }
