@@ -322,8 +322,6 @@ namespace Amoeba
             }         
 
             ///Draw player stuff
-            playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
-            playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
             
             scale = new Vector2(50 / (float)playerSkin.Width, 50 / (float)playerSkin.Height);

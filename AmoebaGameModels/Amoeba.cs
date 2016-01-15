@@ -40,9 +40,9 @@ namespace AmoebaGameModels
         public Amoeba()
         {
             CellId = Guid.NewGuid ();
-            this.size = (Decimal).25;
+            this.size = (Decimal)1;
             this.speed = (Decimal).05;
-            this.maxtraveldistance = (Decimal)2;
+            this.maxtraveldistance = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
         }
 
         //public Amoeba(Decimal size, Decimal maxspeed)
@@ -58,7 +58,7 @@ namespace AmoebaGameModels
         public Decimal Eat(Amoeba Food)
         {
             this.size += Food.Size;
-            //this.maxtraveldistance = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
+            this.maxtraveldistance = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
             return this.size;
         }
 
