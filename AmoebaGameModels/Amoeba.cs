@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
 
 
 
@@ -28,12 +30,16 @@ namespace AmoebaGameModels
         public Decimal Speed { get { return this.speed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
         public Texture2D texture { get; set; }
+        public Body body { get; set; } 
+       
         #endregion
 
         #region Private Fields
         private Decimal size;
         private Decimal speed;
         private Decimal maxtraveldistance;
+        
+
         #endregion
 
         #region Public Constructors
@@ -45,12 +51,14 @@ namespace AmoebaGameModels
             this.maxtraveldistance = (Decimal)2;
         }
 
-        //public Amoeba(Decimal size, Decimal maxspeed)
-        //{
-        //    CellId = Guid.NewGuid ();
-        //    this.size = size;
-        //    this.maxspeed = (Decimal).00005;
-        //}
+        public Amoeba(World world, Decimal size)
+        {
+            CellId = Guid.NewGuid();
+            this.size = size;
+            this.maxtraveldistance = (Decimal).00005;
+            body = new Body(world);
+            body = BodyFactory.CreateCircle(world, .5f, 1f);
+        }
         #endregion
 
         #region Public Methods
