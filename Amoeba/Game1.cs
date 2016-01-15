@@ -174,7 +174,7 @@ namespace Amoeba
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
             // TODO: Add your drawing code here
 
-<<<<<<< HEAD
+
             Decimal Xmouse = Mouse.GetState().Position.X;
             Decimal Ymouse = Mouse.GetState().Position.Y;
             Decimal Xplayer = playerAmoeba.XCoordinate;
@@ -307,7 +307,6 @@ namespace Amoeba
             //playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
             spriteBatch.Draw(playerTexture, new Vector2((float) playerAmoeba.XCoordinate, (float) playerAmoeba.YCoordinate ), Color.White);
 
-=======
             //Draw food every 2 seconds
             if (currentFoodPopulation < 100) {
                 GetRandomsForFood(out foodAmoeba);
@@ -331,7 +330,6 @@ namespace Amoeba
             scale = new Vector2(50 / (float)playerSkin.Width, 50 / (float)playerSkin.Height);
             spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(playerSkin.Width / 2.0f, playerSkin.Height / 2.0f), scale, SpriteEffects.None, 0);
             
->>>>>>> 9ff5f857fe03186f028e1baff407c919ce6a9ea0
             spriteBatch.End();
             base.Draw(gameTime);
         }
