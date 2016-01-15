@@ -45,7 +45,7 @@ namespace Amoeba
         Body body;
         const float unitToPixel = 100.0f;
         const float pixelToUnit = 1 / unitToPixel;
-        CircleShape farseerCircle;     
+        CircleShape farseerCircle;
         Vector2 playerPosition;
         Vector2 scale;
 
@@ -90,8 +90,8 @@ namespace Amoeba
             for (int i = 0; i < 100; i++)
             {
                 foodAmoeba = new AmoebaGameModels.Amoeba();
-                GetRandomsForFood(out foodAmoeba);
-                foodAmoebaList.Add(foodAmoeba);
+                GetRandomsForFood(out foodAmoeba);              
+                foodAmoebaList.Add(foodAmoeba);              
             }
 
             this.IsMouseVisible = true;    
@@ -116,8 +116,8 @@ namespace Amoeba
             body = BodyFactory.CreateCircle(world, size.X * pixelToUnit, 2, 1);
             body.BodyType = BodyType.Dynamic;
             body.Position = new Vector2((GraphicsDevice.Viewport.Width / 2.0f) * pixelToUnit, 0);
-
-            Fixture fixture = body.CreateFixture(farseerCircle);
+            
+            
         }
 
         /// <summary>
@@ -147,8 +147,17 @@ namespace Amoeba
                                      (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
             }
 
-            world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
+            //TODO: Collision detection 
+            //foreach (AmoebaGameModels.Amoeba randomFood in foodAmoebaList)
+            //{
+            //    if (playerFixture.OnCollision)
+            //    {
+                    
+            //        currentFoodPopulation--;
+            //    }
+            //}    
 
+            world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -207,6 +216,7 @@ namespace Amoeba
             foodAmoeba.texture = foodSkin;
             foodAmoeba.XCoordinate = randomX;
             foodAmoeba.YCoordinate = randomY;
+              
         }
     }
 }
