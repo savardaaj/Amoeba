@@ -305,7 +305,6 @@ namespace Amoeba
 
             //playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
             //playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
-            spriteBatch.Draw(playerTexture, new Vector2((float) playerAmoeba.XCoordinate, (float) playerAmoeba.YCoordinate ), Color.White);
 
             //Draw food every 2 seconds
             if (currentFoodPopulation < 100) {
