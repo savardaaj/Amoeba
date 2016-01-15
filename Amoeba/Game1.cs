@@ -341,22 +341,12 @@ namespace Amoeba
                     currentFoodPopulation++;
                 }
             }         
-
-<<<<<<< HEAD
-            ///Player information
-            //Calculate player position
-            playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
-            playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
-            playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);          
+            ///Player information     
             scale = new Vector2(((float) playerAmoeba.Size*200) / (float) playerSkin.Width, ((float) playerAmoeba.Size*200) / (float)playerSkin.Height);
 
             //Draw player     Texture,   Vector position,  rect,    color,  rot,          origin vector ,                                       scale size ,  effects,    depth  
-=======
             ///Draw player stuff
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
-            
-            scale = new Vector2(50 / (float)playerSkin.Width, 50 / (float)playerSkin.Height);
->>>>>>> 07a476d0c8ba0604ffb6aecfcc767174f62b2480
             spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(playerSkin.Width / 2.0f, playerSkin.Height / 2.0f), scale, SpriteEffects.None, 0);
             
             spriteBatch.End();
