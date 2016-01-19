@@ -44,10 +44,10 @@ namespace Amoeba
 
         //Used to project the farseer objects into the world
         World world;
-        Body playerBody, foodBody;
+        //Body playerBody, foodBody;
         const float unitToPixel = 100.0f;
         const float pixelToUnit = 1 / unitToPixel;
-        CircleShape farseerCircle, foodCircle;
+        //CircleShape farseerCircle, foodCircle;
         Vector2 playerPosition, scale;
 
         //Fixtures attach shapes to bodies
@@ -90,11 +90,6 @@ namespace Amoeba
             randomColorGen = new Random();
             currentFoodPopulation = 0;
 
-            //initialize the farseer CircleShape object with radius 0.5f and density 1f
-            farseerCircle = new CircleShape(0.5f, 1f);
-
-            foodCircle = new CircleShape(.1f, 1f);
-
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
             for (int i = 0; i < 100; i++)
             {
@@ -120,32 +115,6 @@ namespace Amoeba
 
 
             playerSkin = Content.Load<Texture2D>("AmoebaPlayer");
-            
-            Vector2 size = new Vector2(50, 50);
-            playerBody = BodyFactory.CreateCircle(world, size.X * pixelToUnit, 2, 1);
-            playerBody.BodyType = BodyType.Dynamic;
-            playerBody.Position = new Vector2((GraphicsDevice.Viewport.Width / 2.0f) * pixelToUnit, 0);
-
-            //Vector2 foodSize = new Vector2(20, 20);
-            //foodBody.BodyType = BodyType.Dynamic;
-            //foodBody.Position = new Vector2((GraphicsDevice.Viewport.Width / 2.0f) * pixelToUnit, 0);
-
-            //Create a fixture and attach it to the body
-            playerFixture = playerBody.CreateFixture(farseerCircle);
-            //foodFixture = foodBody.CreateFixture(foodCircle);
-            
-            //playerBody.CollisionCategories = Category.Cat1;
-            //playerBody.CollidesWith = Category.Cat2;
-            
-
-            //foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
-            //{
-            //    foodBody = BodyFactory.CreateCircle(world, (float)(.15 * pixelToUnit), 1);
-            //    foodBody.BodyType = BodyType.Dynamic;
-            //    foodBody.CollisionCategories = Category.Cat2;
-            //    foodBody.CollidesWith = Category.Cat1;
-            //    foodBody.OnCollision += OnCollision;
-            //}
             
         }
 
@@ -321,8 +290,6 @@ namespace Amoeba
                 }
             }
             #endregion
-            //playerAmoeba.XCoordinate = (decimal)((Mouse.GetState().Position.X - playerAmoeba.XCoordinate) * playerAmoeba.Speed) + playerAmoeba.XCoordinate;
-            //playerAmoeba.YCoordinate = (decimal)((Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) * playerAmoeba.Speed) + playerAmoeba.YCoordinate;
 
             ///Food information
             //Draw food every 2 seconds
@@ -343,10 +310,9 @@ namespace Amoeba
             }         
             ///Player information     
             scale = new Vector2(((float) playerAmoeba.Size*200) / (float) playerSkin.Width, ((float) playerAmoeba.Size*200) / (float)playerSkin.Height);
-
-            //Draw player     Texture,   Vector position,  rect,    color,  rot,          origin vector ,                                       scale size ,  effects,    depth  
-            ///Draw player stuff
+          
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
+            //Draw player     Texture,   Vector position,  rect,    color,  rot,          origin vector ,                                       scale size ,  effects,    depth  
             spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(playerSkin.Width / 2.0f, playerSkin.Height / 2.0f), scale, SpriteEffects.None, 0);
             
             spriteBatch.End();

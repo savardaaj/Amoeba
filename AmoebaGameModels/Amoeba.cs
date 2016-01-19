@@ -56,8 +56,6 @@ namespace AmoebaGameModels
             CellId = Guid.NewGuid();
             this.size = size;
             this.maxtraveldistance = (Decimal).00005;
-            body = new Body(world);
-            body = BodyFactory.CreateCircle(world, .5f, 1f);
         }
         #endregion
 
