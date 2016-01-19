@@ -5,8 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
-
-
+using Microsoft.Xna.Framework;
 
 namespace AmoebaGameModels
 {
@@ -20,41 +19,41 @@ namespace AmoebaGameModels
         
         public Decimal XCoordinate { get; set; }
         public Decimal YCoordinate { get; set; }
+        public Decimal xCenter { get; set; }
+        public Decimal yCenter { get; set; }
         //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
         public Boolean IsMovingAlongTheY  { get; set; }
         #endregion
 
         #region Public Properties
-        //All players will begin at size 1.  Default size for food is .25
-        public Decimal Size { get { return this.size; } }
+        //All players will begin at radius
         public Decimal Speed { get { return this.speed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
-        public Texture2D texture { get; set; }
-        public Body body { get; set; } 
-       
+        public Texture2D Texture { get; set; }
+        public Decimal Radius { get { return this.radius; } }
         #endregion
 
         #region Private Fields
-        private Decimal size;
         private Decimal speed;
         private Decimal maxtraveldistance;
-        
-
+        private Decimal radius;
         #endregion
 
         #region Public Constructors
         public Amoeba()
         {
             CellId = Guid.NewGuid ();
-            this.size = (Decimal).25;
             this.speed = (Decimal).05;
-            this.maxtraveldistance = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
+            this.radius = 50;
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
+            
         }
 
-        public Amoeba(World world, Decimal size)
+        //Food Constructor
+        public Amoeba(Decimal radius)
         {
             CellId = Guid.NewGuid();
-            this.size = size;
+            this.radius = radius;
             this.maxtraveldistance = (Decimal).00005;
         }
         #endregion
@@ -63,9 +62,9 @@ namespace AmoebaGameModels
 
         public Decimal Eat(Amoeba Food)
         {
-            this.size += Food.Size;
-            this.maxtraveldistance = (Decimal)1.5 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.size), -0.439));
-            return this.size;
+            this.radius = Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5));
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
+            return this.radius;
         }
 
         public Decimal SpeedBySize()

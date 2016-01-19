@@ -83,7 +83,7 @@ namespace Amoeba
             // TODO: Add your initialization logic here
 
             //create a new player amoeba
-            playerAmoeba = new AmoebaGameModels.Amoeba();//(1, (decimal).02);//(Decimal) 2.2 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(1), -0.439)));
+            playerAmoeba = new AmoebaGameModels.Amoeba();
 
             colorArray = new string[] { "BlueFood", "RedFood", "GreenFood", "YellowFood", "PinkFood" };
             randomNumberGen = new Random();
@@ -93,8 +93,9 @@ namespace Amoeba
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
             for (int i = 0; i < 100; i++)
             {
-                foodAmoeba = new AmoebaGameModels.Amoeba(world, ((Decimal) ((float).15 * pixelToUnit)));
-                GetRandomsForFood(out foodAmoeba);              
+                foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) .00005);
+                GetRandomsForFood(out foodAmoeba);     
+         
                 foodAmoebaList.Add(foodAmoeba);              
             }
 
@@ -112,8 +113,6 @@ namespace Amoeba
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-
-
             playerSkin = Content.Load<Texture2D>("AmoebaPlayer");
             
         }
@@ -145,8 +144,8 @@ namespace Amoeba
                                      (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
             }
 
-            //TODO: Collision detection 
-            
+            //Check for collisions
+            collisionCheck();
 
             world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
@@ -295,6 +294,7 @@ namespace Amoeba
             //Draw food every 2 seconds
             if (currentFoodPopulation < 100) {
                 GetRandomsForFood(out foodAmoeba);
+                foodAmoebaList.Add(foodAmoeba);
                 //Need to add new food to list array
                 //Need to generate a replacement for food that eaten
             }
@@ -302,14 +302,14 @@ namespace Amoeba
             //Draw food to screen
             foreach (AmoebaGameModels.Amoeba randomFood in foodAmoebaList)
             {
-                if (randomFood.texture != null)
+                if (randomFood.Texture != null)
                 {
-                    spriteBatch.Draw(randomFood.texture, new Vector2((float)randomFood.XCoordinate, (float)randomFood.YCoordinate), Color.White);
+                    spriteBatch.Draw(randomFood.Texture, new Vector2((float)randomFood.XCoordinate, (float)randomFood.YCoordinate), Color.White);
                     currentFoodPopulation++;
                 }
             }         
             ///Player information     
-            scale = new Vector2(((float) playerAmoeba.Size*200) / (float) playerSkin.Width, ((float) playerAmoeba.Size*200) / (float)playerSkin.Height);
+            scale = new Vector2(((float) playerAmoeba.Radius) / (float) playerSkin.Width, ((float) playerAmoeba.Radius) / (float)playerSkin.Height);
           
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
             //Draw player     Texture,   Vector position,  rect,    color,  rot,          origin vector ,                                       scale size ,  effects,    depth  
@@ -333,16 +333,33 @@ namespace Amoeba
 
             //Set texture
             foodSkin = Content.Load <Texture2D>(randomColor);
-            foodAmoeba.texture = foodSkin;
+            foodAmoeba.Texture = foodSkin;
 
             //Set x and y
             foodAmoeba.XCoordinate = randomX;
             foodAmoeba.YCoordinate = randomY;           
         }
-        
-        private bool OnCollision(Fixture b1, Fixture b2, Contact contact)
+
+        protected void collisionCheck()
         {
-            return true;
+            //TODO: Collision detection 
+            try
+            {
+                foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
+                {
+                    if (playerAmoeba.XCoordinate < foodAmoeba.XCoordinate + foodAmoeba.Radius && playerAmoeba.XCoordinate + playerAmoeba.Radius > foodAmoeba.XCoordinate &&
+                        playerAmoeba.YCoordinate < foodAmoeba.YCoordinate + foodAmoeba.Radius && playerAmoeba.YCoordinate + playerAmoeba.Radius > foodAmoeba.YCoordinate)
+                    {
+                        playerAmoeba.Eat(foodAmoeba);
+                        foodAmoebaList.Remove(foodAmoeba);
+                        currentFoodPopulation--;
+                    }
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+
+            }
         }
     }
 }
