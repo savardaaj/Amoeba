@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
+using System.Web.Script.Serialization;
 
 namespace AmoebaGameModels
 {
@@ -37,6 +38,24 @@ namespace AmoebaGameModels
         private Decimal speed;
         private Decimal maxtraveldistance;
         private Decimal radius;
+        #endregion
+
+        #region Public Static Methods
+
+        public static Boolean TryParse (String input, out Amoeba output)
+        {
+            try
+            {
+                output = new JavaScriptSerializer ().Deserialize <Amoeba> (input);
+                return true;
+            }
+            catch (Exception e)
+            {
+                output = null;
+                return false;
+            }
+        }
+
         #endregion
 
         #region Public Constructors
@@ -71,6 +90,13 @@ namespace AmoebaGameModels
         {
             // determine the speed based on the size of the cell
             return 1;
+        }
+
+
+        public String ToString ()
+        {
+            String json = new JavaScriptSerializer ().Serialize (this);
+            return json;
         }
 
         #endregion

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AmoebaGameModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +19,7 @@ namespace AmoebaServer
                 serverObject.Listen ();
                 
             });
+
             int packets = 0;
             do
             {
