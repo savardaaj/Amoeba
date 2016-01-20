@@ -56,6 +56,20 @@ namespace AmoebaGameModels
             }
         }
 
+        public static Boolean TryParse (Byte [] input, out Amoeba output)
+        {
+            try
+            {
+                output = new JavaScriptSerializer ().Deserialize <Amoeba> (System.Text.Encoding.UTF8.GetString (input));
+                return true;
+            }
+            catch (Exception e)
+            {
+                output = null;
+                return false;
+            }
+        }
+
         #endregion
 
         #region Public Constructors
@@ -97,6 +111,11 @@ namespace AmoebaGameModels
         {
             String json = new JavaScriptSerializer ().Serialize (this);
             return json;
+        }
+
+        public Byte [] ToByteArray ()
+        {
+            return System.Text.Encoding.UTF8.GetBytes (this.ToString ());
         }
 
         #endregion
