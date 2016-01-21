@@ -4,7 +4,7 @@ using FarseerPhysics.Dynamics;
 using FarseerPhysics.Common;
 using FarseerPhysics.Collision;
 using FarseerPhysics.Factories;
-using FarseerPhysics.Collision.Shapes;
+using FarseerPhysics.Collision.Shapes; 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,9 +13,6 @@ using System.Linq;
 using System.Text;
 using System;
 using Drawing;
-using initi = Microsoft.Xna.Framework.Graphics;
-
-
 
 namespace Amoeba
 {
@@ -31,10 +28,7 @@ namespace Amoeba
         SpriteBatch spriteBatch;
 
         //Texture that displays orange ball for plaer
-        Texture2D playerSkin;
-
-        //Texture that displays different food colors
-        Texture2D foodSkin;
+        Texture2D playerSkin, foodSkin;
 
         //Array to store different color foods
         string[] colorArray;
@@ -67,7 +61,6 @@ namespace Amoeba
             graphics.ApplyChanges();
 
             world = new World(new Vector2(0, 0));
-            
             Content.RootDirectory = "Content";
         }
 
@@ -80,7 +73,7 @@ namespace Amoeba
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            //DrawingHelper.Initialize(initi::GraphicsDevice);
+
             //create a new player amoeba
             playerAmoeba = new AmoebaGameModels.Amoeba();
 
@@ -95,7 +88,8 @@ namespace Amoeba
                 CreateNewFood();                 
             }
 
-            this.IsMouseVisible = true;    
+            this.IsMouseVisible = true;
+
             base.Initialize();
         }
 
@@ -107,8 +101,7 @@ namespace Amoeba
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
-
+                
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("AmoebaPlayer");
             
@@ -155,9 +148,7 @@ namespace Amoeba
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-
             // TODO: KEVIN FIIIIIXIXXXXXXXX
             #region KEVIN FIX IT
             Decimal Xmouse = Mouse.GetState().Position.X;
@@ -363,7 +354,6 @@ namespace Amoeba
             }
             #endregion
 
-
             //If game food population drops below 100, create new foods    
             if (currentFoodPopulation < 100) {
                 CreateNewFood();
@@ -420,14 +410,14 @@ namespace Amoeba
 
         protected void collisionCheck()
         {           
-            //Try catch to prevent game from crashing when removing an object
+            //Try-catch to prevent game from crashing when removing an object
             try
             {
                 foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
                 {
-                    //TODO: Fix collision detection
-                    if (((int)Math.Abs(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate) < (double)playerAmoeba.Radius) && 
-                        ((int)Math.Abs(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate)) < (double)playerAmoeba.Radius)
+                    //TODO: Fix collision detection, radius is not properly represented for collision
+                    if (((int)Math.Abs(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate) < (double)playerAmoeba.Radius/2) && 
+                        ((int)Math.Abs(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate)) < (double)playerAmoeba.Radius/2)
                     {
                         playerAmoeba.Eat(foodAmoeba);
                         foodAmoebaList.Remove(foodAmoeba);

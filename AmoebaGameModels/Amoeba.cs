@@ -95,7 +95,7 @@ namespace AmoebaGameModels
 
         public Decimal Eat(Amoeba Food)
         {
-            this.radius = Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5));
+            this.radius = Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2)/2, (double) .5));
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
             return this.radius;
         }
