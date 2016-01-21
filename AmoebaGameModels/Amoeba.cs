@@ -77,7 +77,7 @@ namespace AmoebaGameModels
         {
             CellId = Guid.NewGuid ();
             this.speed = (Decimal).05;
-            this.radius = 50;
+            this.radius = 35;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
             
         }
