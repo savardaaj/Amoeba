@@ -152,223 +152,8 @@ namespace Amoeba
         {
             GraphicsDevice.Clear(Color.White);
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            // TODO: KEVIN FIIIIIXIXXXXXXXX
-            #region KEVIN FIX IT
-            Decimal Xmouse = Mouse.GetState().Position.X;
-            Decimal Ymouse = Mouse.GetState().Position.Y;
-            Decimal Xplayer = playerAmoeba.XCoordinate;
-            Decimal Yplayer = playerAmoeba.YCoordinate;
-            Decimal Xdif = Xmouse - Xplayer;
-            Decimal Ydif = Ymouse - Yplayer;
-            Decimal MousePlayerDist = (decimal) Math.Sqrt(Math.Pow( (double) Xdif, 2) + Math.Pow( (double) Ydif, 2) ); // pathagorean theorem
 
-            Decimal Angle;
-            Decimal Opposite1;
-            Decimal Adjacent1;
-            Decimal NewXdistance;
-            Decimal NewYdistance;
-            int Quadrant;
-
-            // Determine quadrant the mouse is in relative to player position
-            if (Xdif > 0)
-            {
-                if (Ydif > 0)   { Quadrant = 1; }
-                else            { Quadrant = 4; }
-            }
-            else
-            {
-                if (Ydif > 0)   { Quadrant = 2; }
-                else            { Quadrant = 3; }
-            }
-
-            // Set triangle side values for triangle between mouse and player position
-            switch (Quadrant)
-            {
-                case 1:
-                    Opposite1 = Xdif;
-                    Adjacent1 = Ydif;
-                    break;
-                case 2:
-                    Opposite1 = Ydif;
-                    Adjacent1 = Math.Abs (Xdif);
-                    break;
-                case 3:
-                    Opposite1 = Math.Abs (Xdif);
-                    Adjacent1 = Math.Abs (Ydif);
-                    break;
-                case 4:
-                    Opposite1 = Math.Abs (Ydif);
-                    Adjacent1 = Xdif;
-                    break;
-                default:
-                    Opposite1 = 0;
-                    Adjacent1 = 0;
-                    break;
-            }
-
-            // Use tan to determine the angle of interest
-            Angle = (decimal) Math.Atan ((double) (Opposite1 / Adjacent1));
-
-            switch (Quadrant)
-            {
-                case 1:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Sin ((double) Angle);
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Cos ((double) Angle);
-                    break;
-                case 2:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Cos((double)Angle) * -1;
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Sin((double)Angle);
-                    break;
-                case 3:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Sin((double)Angle) * -1;
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Cos((double)Angle) * -1;
-                    break;
-                case 4:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Cos((double)Angle);
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal) Math.Sin((double)Angle) * -1;
-                    break;
-                default:
-                    NewXdistance = 0;
-                    NewYdistance = 0;
-                    break;
-            }
-
-            if (playerAmoeba.Wordy == true)
-            {
-                Console.WriteLine(" ----------------------------------- ");
-                Console.WriteLine("MouseX: " + Xmouse);
-                Console.WriteLine("MouseY: " + Ymouse);
-                Console.WriteLine("beginning X: " + Xplayer);
-                Console.WriteLine("beginning Y: " + Yplayer);
-                Console.WriteLine("New X dist: " + NewXdistance);
-                Console.WriteLine("New Y dist: " + NewYdistance);
-                //Console.WriteLine("Speed: " + playerAmoeba.Speed);
-            }
-
-            if (MousePlayerDist > playerAmoeba.MaxTravelDistance)
-            {
-                playerAmoeba.XCoordinate = Xplayer + NewXdistance;
-                playerAmoeba.YCoordinate = Yplayer + NewYdistance;
-            }
-            else
-            {
-                playerAmoeba.XCoordinate = Xplayer + Xdif;
-                playerAmoeba.YCoordinate = Yplayer + Ydif;
-            }
-
-            // if it would be exceeding max travel distance in either direction...
-            if (Math.Abs((Xdif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance || Math.Abs((Ydif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance)
-            {
-                if (playerAmoeba.Wordy == true) { Console.WriteLine("---Exceeding MTD"); }
-                // if traveling farther X than Y...
-                if (Math.Abs((Xdif) * playerAmoeba.Speed) > Math.Abs((Ydif) * playerAmoeba.Speed))
-                {
-                    if (playerAmoeba.Wordy == true) { Console.WriteLine("X direction is larger"); }
-
-                    if (Xdif != 0)
-                    {
-                        if (Xmouse > Xplayer)
-                        {
-                            playerAmoeba.XCoordinate = Xplayer + playerAmoeba.MaxTravelDistance;
-                        }
-                        else if (Xmouse < Xplayer)
-                        {
-                            playerAmoeba.XCoordinate = Xplayer - playerAmoeba.MaxTravelDistance;
-                        }
-                        
-                        // if Y also exceeds MTD
-                        if (Math.Abs((Ydif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance)
-                        {
-                            if (Ymouse > Yplayer)
-                            {
-                                // Yplayer = Yplayer + |MTD / (Xmouse-Xplayer)| * Ymouse
-                                playerAmoeba.YCoordinate = Yplayer + (Math.Abs(playerAmoeba.MaxTravelDistance / (Xdif)) * Ymouse);
-                            }
-                            else if(Ymouse < Yplayer)
-                            {
-                                playerAmoeba.YCoordinate = Yplayer - (Math.Abs(playerAmoeba.MaxTravelDistance / (Xdif)) * Ymouse);
-                            }
-                        }
-                        else 
-                        {
-                            if (Ymouse > Yplayer)
-                            {
-                                playerAmoeba.YCoordinate = Yplayer + Math.Abs((Ydif) * playerAmoeba.Speed);
-                            }
-                            else if (Ymouse < Yplayer)
-                            {
-                                playerAmoeba.YCoordinate = Yplayer - Math.Abs((Ydif) * playerAmoeba.Speed);
-                            }
-                            
-                        }
-                    }
-                    if (playerAmoeba.Wordy == true)
-                    {
-                        Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
-                        Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
-                    }
-
-                }
-                // else, since traveling farther Y than X...
-                else
-                {
-                    if (Ydif != 0)
-                    {
-                        if (Ymouse > Yplayer)
-                        {
-                            playerAmoeba.YCoordinate = Yplayer + playerAmoeba.MaxTravelDistance;
-                        }
-                        else if (Ymouse < Yplayer)
-                        {
-                            playerAmoeba.YCoordinate = Yplayer - playerAmoeba.MaxTravelDistance;
-                        }
-
-                        // if X also exceeds MTD
-                        if (Math.Abs((Xdif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance)
-                        {
-                            if (Xmouse > Xplayer)
-                            {
-                                // Yplayer = Yplayer + |MTD / (Xmouse-Xplayer)| * Ymouse
-                                playerAmoeba.XCoordinate = Xplayer + (Math.Abs(playerAmoeba.MaxTravelDistance / (Ydif)) * Xmouse);
-                            }
-                            else if (Xmouse < Xplayer)
-                            {
-                                playerAmoeba.XCoordinate = Xplayer - (Math.Abs(playerAmoeba.MaxTravelDistance / (Ydif)) * Xmouse);
-                            }
-                        }
-                        else
-                        {
-                            if (Xmouse > Xplayer)
-                            {
-                                playerAmoeba.XCoordinate = Xplayer + Math.Abs((Xdif) * playerAmoeba.Speed);
-                            }
-                            else if (Xmouse < Xplayer)
-                            {
-                                playerAmoeba.XCoordinate = Xplayer - Math.Abs((Xdif) * playerAmoeba.Speed);
-                            }
-                        }
-                    }
-                    if (playerAmoeba.Wordy == true)
-                    {
-                        Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
-                        Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
-                    }
-                }
-            }
-            // else, not exceeding max travel distance so calculate new coordinates
-            else
-            {
-                playerAmoeba.XCoordinate = Xplayer + ((Xdif) * playerAmoeba.Speed);
-                playerAmoeba.YCoordinate = Yplayer + ((Ydif) * playerAmoeba.Speed);
-
-                if (playerAmoeba.Wordy == true)
-                {
-                    Console.WriteLine("---Not Exceeding MTD");
-                    Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
-                    Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
-                }
-            }
-            #endregion
+            setNewPlayerCoordinates(); 
 
             //If game food population drops below 100, create new foods    
             if (currentFoodPopulation < 100) {
@@ -456,6 +241,119 @@ namespace Amoeba
             }
             catch (InvalidOperationException e)
             {}
+        }
+
+        // Determines the new location of the player for the next time it is drawn, stores in playerAmoeba.[X/Y]Coordinate
+        protected void setNewPlayerCoordinates()
+        {
+            Decimal Xmouse = Mouse.GetState().Position.X;
+            Decimal Ymouse = Mouse.GetState().Position.Y;
+            Decimal Xplayer = playerAmoeba.XCoordinate;
+            Decimal Yplayer = playerAmoeba.YCoordinate;
+            Decimal Xdif = Xmouse - Xplayer;
+            Decimal Ydif = Ymouse - Yplayer;
+            Decimal MousePlayerDist = (decimal)Math.Sqrt(Math.Pow((double)Xdif, 2) + Math.Pow((double)Ydif, 2)); // pathagorean theorem
+
+            Decimal Angle;
+            Decimal Opposite1;
+            Decimal Adjacent1;
+            Decimal NewXdistance;
+            Decimal NewYdistance;
+            int Quadrant;
+
+            // Determine quadrant the mouse is in relative to player position
+            if (Xdif > 0)
+            {
+                if (Ydif > 0) { Quadrant = 1; }
+                else { Quadrant = 4; }
+            }
+            else
+            {
+                if (Ydif > 0) { Quadrant = 2; }
+                else { Quadrant = 3; }
+            }
+
+            // Set triangle side values for triangle between mouse and player position
+            switch (Quadrant)
+            {
+                case 1:
+                    Opposite1 = Xdif;
+                    Adjacent1 = Ydif;
+                    break;
+                case 2:
+                    Opposite1 = Ydif;
+                    Adjacent1 = Math.Abs(Xdif);
+                    break;
+                case 3:
+                    Opposite1 = Math.Abs(Xdif);
+                    Adjacent1 = Math.Abs(Ydif);
+                    break;
+                case 4:
+                    Opposite1 = Math.Abs(Ydif);
+                    Adjacent1 = Xdif;
+                    break;
+                default:
+                    Opposite1 = 0;
+                    Adjacent1 = 0;
+                    break;
+            }
+
+            // Use tan to determine the angle of interest
+            if (Adjacent1 == 0)
+            {
+                Angle = 0;
+            }
+            else
+            {
+                Angle = (decimal)Math.Atan((double)(Opposite1 / Adjacent1));
+            }
+
+            switch (Quadrant)
+            {
+                case 1:
+                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
+                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
+                    break;
+                case 2:
+                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
+                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
+                    break;
+                case 3:
+                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
+                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
+                    break;
+                case 4:
+                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
+                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
+                    break;
+                default:
+                    NewXdistance = 0;
+                    NewYdistance = 0;
+                    break;
+            }
+
+            if (playerAmoeba.Wordy == true)
+            {
+                Console.WriteLine(" ----------------------------------- ");
+                Console.WriteLine("MouseX: " + Xmouse);
+                Console.WriteLine("MouseY: " + Ymouse);
+                Console.WriteLine("beginning X: " + Xplayer);
+                Console.WriteLine("beginning Y: " + Yplayer);
+                Console.WriteLine("New X dist: " + NewXdistance);
+                Console.WriteLine("New Y dist: " + NewYdistance);
+                //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+            }
+
+            if (MousePlayerDist > playerAmoeba.MaxTravelDistance)
+            {
+                playerAmoeba.XCoordinate = Xplayer + NewXdistance;
+                playerAmoeba.YCoordinate = Yplayer + NewYdistance;
+            }
+            else
+            {
+                playerAmoeba.XCoordinate = Xplayer + Xdif;
+                playerAmoeba.YCoordinate = Yplayer + Ydif;
+            }
         }
     }
 }
