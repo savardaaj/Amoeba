@@ -157,8 +157,8 @@ namespace Amoeba
             Decimal Yplayer = playerAmoeba.YCoordinate;
             Decimal Xdif = Xmouse - Xplayer;
             Decimal Ydif = Ymouse - Yplayer;
+            Decimal MousePlayerDist = (decimal) Math.Sqrt(Math.Pow( (double) Xdif, 2) + Math.Pow( (double) Ydif, 2) ); // pathagorean theorem
 
-            Decimal MTD;
             Decimal Angle;
             Decimal Opposite1;
             Decimal Adjacent1;
@@ -237,9 +237,22 @@ namespace Amoeba
                 Console.WriteLine("MouseY: " + Ymouse);
                 Console.WriteLine("beginning X: " + Xplayer);
                 Console.WriteLine("beginning Y: " + Yplayer);
+                Console.WriteLine("New X dist: " + NewXdistance);
+                Console.WriteLine("New Y dist: " + NewYdistance);
                 //Console.WriteLine("Speed: " + playerAmoeba.Speed);
             }
-            
+
+            if (MousePlayerDist > playerAmoeba.MaxTravelDistance)
+            {
+                playerAmoeba.XCoordinate = Xplayer + NewXdistance;
+                playerAmoeba.YCoordinate = Yplayer + NewYdistance;
+            }
+            else
+            {
+                playerAmoeba.XCoordinate = Xplayer + Xdif;
+                playerAmoeba.YCoordinate = Yplayer + Ydif;
+            }
+
             // if it would be exceeding max travel distance in either direction...
             if (Math.Abs((Xdif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance || Math.Abs((Ydif) * playerAmoeba.Speed) > playerAmoeba.MaxTravelDistance)
             {
