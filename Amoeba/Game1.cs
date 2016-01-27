@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System;
-using Drawing;
 
 namespace Amoeba
 {
@@ -28,7 +27,7 @@ namespace Amoeba
         SpriteBatch spriteBatch;
 
         //Texture that displays orange ball for plaer
-        Texture2D playerSkin, foodSkin;
+        Texture2D playerSkin, testSkin, foodSkin;
 
         //Array to store different color foods
         string[] colorArray;
@@ -45,7 +44,8 @@ namespace Amoeba
         const float unitToPixel = 100.0f;
         const float pixelToUnit = 1 / unitToPixel;
 
-        Vector2 playerPosition, scale;
+        Vector2 playerPosition;
+        float scale, scale2, scale3;
 
         AmoebaGameModels.Amoeba playerAmoeba;
         AmoebaGameModels.Amoeba foodAmoeba;
@@ -55,9 +55,10 @@ namespace Amoeba
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+
             //Set the window size
-            graphics.PreferredBackBufferWidth = 1024;
-            graphics.PreferredBackBufferHeight = 768;
+            graphics.PreferredBackBufferWidth = 1600;
+            graphics.PreferredBackBufferHeight = 1000;
             graphics.ApplyChanges();
 
             world = new World(new Vector2(0, 0));
@@ -103,8 +104,10 @@ namespace Amoeba
             spriteBatch = new SpriteBatch(GraphicsDevice);
                 
             // TODO: use this.Content to load your game content here
-            playerSkin = Content.Load<Texture2D>("AmoebaPlayer");
-            
+            playerSkin = Content.Load<Texture2D>("GreenPlayer");
+            //testSkin = Content.Load<Texture2D>("TestSkin");
+
+            playerAmoeba.Texture = playerSkin;
         }
 
         /// <summary>
@@ -377,34 +380,40 @@ namespace Amoeba
             {               
                 if (randomFood.Texture != null)
                 {
-                    Vector2 foodScale = new Vector2(((float)randomFood.Radius / (float)randomFood.Texture.Width), ((float)randomFood.Radius) / (float)randomFood.Texture.Height);
+                    float foodScale = (float) randomFood.Radius / (float)randomFood.Texture.Width;
                     Vector2 foodPosition = new Vector2((float)randomFood.XCoordinate, (float)randomFood.YCoordinate);
                     
-                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width / 2.0f, randomFood.Texture.Height / 2.0f), foodScale, SpriteEffects.None, 0);                    
+                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width, randomFood.Texture.Height), foodScale, SpriteEffects.None, 0);                    
                 }
             }         
             ///Player information     
-            scale = new Vector2(((float) playerAmoeba.Radius / playerSkin.Width), ((float) playerAmoeba.Radius) / playerSkin.Height);
-          
-            playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
-            //Draw player     Texture,   Vector position,  rect,    color,  rot,          origin vector ,                                       scale size ,  effects,    depth  
-            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(playerSkin.Width / 2.0f, playerSkin.Height / 2.0f), scale, SpriteEffects.None, 0);
+            scale = (float)playerAmoeba.Radius / playerAmoeba.Texture.Width;
+            scale3 = (float)playerAmoeba.Radius / playerSkin.Width;
+            scale2 = (float)(playerAmoeba.Radius / playerSkin.Height) / 2f;
+
             
+
+            playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
+            //Draw player     Texture,   position,       rect,    color,   rot,                           origin vector ,                                       scale size ,  effects,    depth  
+            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(((float)playerAmoeba.XCoordinate) + playerSkin.Width / 2f, ((float)playerAmoeba.YCoordinate) + playerSkin.Height/ 2f), scale, SpriteEffects.None, 0);
+            //spriteBatch.Draw(testSkin, playerPosition, null, Color.White, 0f, new Vector2((float)playerAmoeba.XCoordinate/playerSkin.Height, (float)playerAmoeba.YCoordinate/playerSkin.Height), scale2, SpriteEffects.None, 0);
+
             spriteBatch.End();
             base.Draw(gameTime);
         }
 
         /*
-         * This function generates random color and coordinates for food objects. 
+         * This function generates random color and coordinates for food objects between 0 and screen height and screen width. 
+         * Creates new food objects at radius = 20
          * It also sets the texture and coordinates for the object 
          */
         protected void CreateNewFood()
         {
-            foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) 25);
+            foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) 20);
             //grab random color and x,y for food
             randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
-            randomX = randomNumberGen.Next(0, 1024);
-            randomY = randomNumberGen.Next(0, 768);
+            randomX = randomNumberGen.Next(0, graphics.PreferredBackBufferWidth);
+            randomY = randomNumberGen.Next(0, graphics.PreferredBackBufferHeight);
 
             //Set x and y
             foodAmoeba.XCoordinate = randomX;
@@ -428,13 +437,20 @@ namespace Amoeba
             {
                 foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
                 {
+                    Decimal centerx = playerAmoeba.XCoordinate + (playerAmoeba.Radius / 2);
+                    Decimal centery = playerAmoeba.YCoordinate + (playerAmoeba.Radius / 2);
+
                     //TODO: Fix collision detection, radius is not properly represented for collision
-                    if (((int)Math.Abs(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate) < (double)playerAmoeba.Radius/2) && 
-                        ((int)Math.Abs(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate)) < (double)playerAmoeba.Radius/2)
+                    if (((int)Math.Abs(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate) < (double)playerAmoeba.Radius) && 
+                        ((int)Math.Abs(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate)) < (double)playerAmoeba.Radius)
                     {
                         playerAmoeba.Eat(foodAmoeba);
                         foodAmoebaList.Remove(foodAmoeba);
                         currentFoodPopulation--;
+                        Console.WriteLine("Radius: " + playerAmoeba.Radius);
+                        Console.WriteLine("X: " + playerAmoeba.XCoordinate);
+                        Console.WriteLine("Y: " + playerAmoeba.YCoordinate);
+                        Console.WriteLine("Scale: " + scale);
                     }
                 }
             }
