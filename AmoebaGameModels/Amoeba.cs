@@ -24,6 +24,7 @@ namespace AmoebaGameModels
         public Decimal yCenter { get; set; }
         //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
         public Boolean IsMovingAlongTheY  { get; set; }
+        public float Scale { get; set; }
         #endregion
 
         #region Public Properties
@@ -31,7 +32,7 @@ namespace AmoebaGameModels
         public Decimal Speed { get { return this.speed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
         public Texture2D Texture { get; set; }
-        public Decimal Radius { get { return this.radius; } }
+        public Decimal Radius { get { return this.radius; } }     
         #endregion
 
         #region Private Fields
@@ -95,8 +96,10 @@ namespace AmoebaGameModels
 
         public Decimal Eat(Amoeba Food)
         {
-            this.radius = Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2)/2, (double) .5));
+            //this.radius = (Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5)));
+            this.radius += 1;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
+            Scale += .1f;
             return this.radius;
         }
 
