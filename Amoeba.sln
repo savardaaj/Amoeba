@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaServer", "AmoebaServe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farseer Physics MonoGame", "Farseer Physics Engine 3.5\Farseer Physics MonoGame.csproj", "{0AAD36E3-51A5-4A07-AB60-5C8A66BD38B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaServerTest", "AmoebaServerTest\AmoebaServerTest.csproj", "{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,16 @@ Global
 		{0AAD36E3-51A5-4A07-AB60-5C8A66BD38B7}.Release|Mixed Platforms.Build.0 = Release|x86
 		{0AAD36E3-51A5-4A07-AB60-5C8A66BD38B7}.Release|x86.ActiveCfg = Release|x86
 		{0AAD36E3-51A5-4A07-AB60-5C8A66BD38B7}.Release|x86.Build.0 = Release|x86
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

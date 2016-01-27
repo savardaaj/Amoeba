@@ -4,22 +4,33 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace AmoebaServer
 {
+    enum ServerStatus
+    {
+        Starting,
+        Running,
+        Stopping,
+        Off,
+        Unknown
+    }
 
     class Server
     {
-        private const int listenPort = 11000;
+        public const int listenPort = 11000;
 
-        private Socket serverSocket = null;
-        private List<EndPoint> clientList = new List<EndPoint> ();
-        private List<Tuple<EndPoint, Byte []>> dataList = new List<Tuple<EndPoint, Byte []>> ();
-        private Byte [] byteData = new Byte [1024];
-        private IAsyncResult currentAsyncResult;
+        private List<IPEndPoint> clientList = new List<IPEndPoint> ();
+        private List<Tuple<IPEndPoint, Byte []>> dataList = new List<Tuple<IPEndPoint, Byte []>> ();
+        private UdpClient udpClient = new UdpClient (listenPort);
+        private Boolean isCanceled = false;
 
-        public List<Tuple<EndPoint, Byte []>> DataList
+        public ServerStatus Status { get; private set; }
+
+        
+
+        public List<Tuple<IPEndPoint, Byte []>> DataList
         {
             get { return this.dataList; }
             private set { this.dataList = value; }
@@ -27,53 +38,42 @@ namespace AmoebaServer
 
         public Server ()
         {
-
+            this.Status = ServerStatus.Off;
         }
         
         public void Listen ()
         {
-            this.serverSocket = new Socket (AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            this.serverSocket.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            this.serverSocket.Bind (new IPEndPoint (IPAddress.Any, listenPort));
-            EndPoint newClientEP = new IPEndPoint (IPAddress.Any, 0);
-            this.currentAsyncResult = this.serverSocket.BeginReceiveFrom (this.byteData, 0, this.byteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
-        }
-
-        public void DoReceiveFrom (IAsyncResult ar)
-        {
-            try
+            Status = ServerStatus.Starting;
+            
+            Task.Run (async () =>
             {
-                EndPoint clientEP = new IPEndPoint (IPAddress.Any, 0);
-                if (ar == this.currentAsyncResult)
-                {
-                    
-                    Int32 dataLength = this.serverSocket.EndReceiveFrom(ar, ref clientEP);
-                    Byte [] data = new Byte [dataLength];
-                    Array.Copy (this.byteData, data, dataLength);
-
-                    if (this.clientList.Any (client => client.Equals(clientEP)) != true)
+                Status = ServerStatus.Running;
+                while (this.isCanceled != true)
+                { 
+                    UdpReceiveResult receivedResults = await udpClient.ReceiveAsync ();
+                    dataList.Add (new Tuple<IPEndPoint, Byte []> (receivedResults.RemoteEndPoint, receivedResults.Buffer));
+                    if (this.clientList.Any (client => client.Equals(receivedResults.RemoteEndPoint)) != true)
                     {
-                        this.clientList.Add (clientEP);
+                        this.clientList.Add (receivedResults.RemoteEndPoint);
                     }
-
-                    EndPoint newClientEP = new IPEndPoint (IPAddress.Any, 0);
-                    DataList.Add (Tuple.Create (clientEP, data));
-                    Console.WriteLine (BitConverter.ToDouble(data,0).ToString ());
                 }
-                    this.currentAsyncResult = this.serverSocket.BeginReceiveFrom (this.byteData, 0, this.byteData.Length, SocketFlags.None, ref clientEP, DoReceiveFrom, clientEP);
-
-                    
-                
-            }
-            catch (ObjectDisposedException)
-            { }
+            });            
         }
 
-        public void SendTo (Byte [] data, EndPoint clientEP)
+        public void StopListening ()
+        {
+            this.Status = ServerStatus.Stopping;
+            this.isCanceled = true;
+            this.udpClient.Close ();
+            this.Status = ServerStatus.Off;
+            
+        }
+
+        public void SendTo (Byte [] data, IPEndPoint clientEP)
         {
             try
             {
-                this.serverSocket.SendTo (data, clientEP);
+                this.udpClient.Send (data, data.Length, clientEP);
             }
             catch (System.Net.Sockets.SocketException)
             {
@@ -83,9 +83,9 @@ namespace AmoebaServer
 
         public void SendToAll (Byte [] data)
         {
-            foreach (EndPoint client in this.clientList)
+            foreach (IPEndPoint client in this.clientList)
             {
-                this.SendTo (data, client);
+                this.udpClient.Send (data, data.Length, client);
             }
         }
     }
