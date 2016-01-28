@@ -96,7 +96,7 @@ namespace Amoeba
             
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("GreenPlayer");
-            background = Content.Load<Texture2D>("milkyway3");
+            background = Content.Load<Texture2D>("SPACeOMG");
 
             playerAmoeba.Texture = playerSkin;
         }
@@ -121,7 +121,8 @@ namespace Amoeba
                 Exit();
 
             camera.Position = new Vector2((float) playerAmoeba.XCoordinate - graphics.PreferredBackBufferWidth / 2, (float) playerAmoeba.YCoordinate - graphics.PreferredBackBufferHeight / 2);
-            camera.Zoom = 1f;
+            
+            camera.Zoom = (float) 3/((float) playerAmoeba.Radius - 10) + .8f;
             
             //Check for collisions
             collisionCheck();
@@ -367,6 +368,23 @@ namespace Amoeba
             }
             else
             {
+                if (playerAmoeba.XCoordinate > 10000)
+                {
+                    playerAmoeba.XCoordinate = 0;
+                }
+                else if (playerAmoeba.XCoordinate < 0)
+                {
+                    playerAmoeba.XCoordinate = 10000;
+
+                }
+                if (playerAmoeba.YCoordinate > 10000)
+                {
+                    playerAmoeba.YCoordinate = 0;
+                }
+                else if (playerAmoeba.YCoordinate < 0)
+                {
+                    playerAmoeba.YCoordinate = 10000;
+                }
                 playerAmoeba.XCoordinate += ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
                 playerAmoeba.YCoordinate += ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
                 playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
