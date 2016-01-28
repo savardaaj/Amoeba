@@ -5,12 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: InternalsVisibleTo("AmoebaServerTest")]
-[assembly: AssemblyTitle ("AmoebaServer")]
+[assembly: AssemblyTitle ("AmoebaServerTest")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("AmoebaServer")]
+[assembly: AssemblyProduct ("AmoebaServerTest")]
 [assembly: AssemblyCopyright ("Copyright ©  2016")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
@@ -21,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid ("31b29692-9aa9-4564-8e33-99b3b0820fcd")]
+[assembly: Guid ("d2c59c5d-a8e1-4a58-b79e-ca59abe75a1e")]
 
 // Version information for an assembly consists of the following four values:
 //

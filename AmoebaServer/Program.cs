@@ -13,7 +13,7 @@ namespace AmoebaServer
         {
             Server serverObject = new Server ();
 
-            Task.Factory.StartNew (async () =>
+            Task.Factory.StartNew (() =>
             {
                 
                 serverObject.Listen ();
