@@ -52,6 +52,8 @@ namespace Amoeba
 
         List<AmoebaGameModels.Amoeba> foodAmoebaList;
 
+        Camera2D2 camera;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -83,6 +85,9 @@ namespace Amoeba
             randomColorGen = new Random();
             currentFoodPopulation = 0;
 
+            playerAmoeba.XCoordinate = (decimal) graphics.PreferredBackBufferWidth / 2;
+            playerAmoeba.YCoordinate = (decimal) graphics.PreferredBackBufferHeight / 2;
+
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
             for (int i = 0; i < 100; i++)
             {
@@ -91,6 +96,7 @@ namespace Amoeba
 
             this.IsMouseVisible = true;
 
+            camera = new Camera2D2(GraphicsDevice.Viewport);
             base.Initialize();
         }
 
@@ -102,7 +108,7 @@ namespace Amoeba
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-                
+            
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("GreenPlayer");
             //testSkin = Content.Load<Texture2D>("TestSkin");
@@ -129,14 +135,9 @@ namespace Amoeba
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            //m = y2 - y1 / x2 - x1
-            if (Mouse.GetState().Position.X - playerAmoeba.XCoordinate != 0)
-            {
-                playerAmoeba.Slope = (Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) /
-                                     (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
-            }
-
+            camera.Position = new Vector2((float) playerAmoeba.XCoordinate - graphics.PreferredBackBufferWidth / 2, (float) playerAmoeba.YCoordinate - graphics.PreferredBackBufferHeight / 2);
+            camera.Zoom = .5f;
+            
             //Check for collisions
             collisionCheck();
 
@@ -151,12 +152,15 @@ namespace Amoeba
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            
+            var viewMatrix = camera.GetViewMatrix();
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, transformMatrix: viewMatrix);
 
             setNewPlayerCoordinates(); 
 
             //If game food population drops below 100, create new foods    
-            if (currentFoodPopulation < 1000) {
+            if (currentFoodPopulation < 5000) {
                 CreateNewFood();
             }
 
@@ -180,14 +184,13 @@ namespace Amoeba
 
             float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
 
-
-
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius) , (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
             Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
 
             //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
             spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, 0);
 
+            
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -202,8 +205,8 @@ namespace Amoeba
             foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) 20);
             //grab random color and x,y for food
             randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
-            randomX = randomNumberGen.Next(0, graphics.PreferredBackBufferWidth);
-            randomY = randomNumberGen.Next(0, graphics.PreferredBackBufferHeight);
+            randomX = randomNumberGen.Next(0, 10000);
+            randomY = randomNumberGen.Next(0, 10000);
 
             //Set x and y
             foodAmoeba.XCoordinate = randomX;
@@ -251,8 +254,8 @@ namespace Amoeba
         // Determines the new location of the player for the next time it is drawn, stores in playerAmoeba.[X/Y]Coordinate
         protected void setNewPlayerCoordinates()
         {
-            Decimal Xmouse = Mouse.GetState().Position.X;
-            Decimal Ymouse = Mouse.GetState().Position.Y;
+            Decimal Xmouse = Mouse.GetState().Position.X + (decimal) camera.Position.X;
+            Decimal Ymouse = Mouse.GetState().Position.Y + (decimal) camera.Position.Y;
             Decimal Xplayer = playerAmoeba.XCoordinate;
             Decimal Yplayer = playerAmoeba.YCoordinate;
             Decimal Xdif = Xmouse - Xplayer;
