@@ -96,7 +96,7 @@ namespace Amoeba
             
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("GreenPlayer");
-            background = Content.Load<Texture2D>("Background");
+            background = Content.Load<Texture2D>("milkyway3");
 
             playerAmoeba.Texture = playerSkin;
         }
@@ -332,10 +332,27 @@ namespace Amoeba
 
             if (MousePlayerDist > playerAmoeba.Radius)
             {
+                if (playerAmoeba.XCoordinate > 10000) 
+                {
+                    playerAmoeba.XCoordinate = 0;
+                }
+                else if (playerAmoeba.XCoordinate < 0)
+                {
+                    playerAmoeba.XCoordinate = 10000;
+                    
+                }
+                if (playerAmoeba.YCoordinate > 10000)
+                {
+                    playerAmoeba.YCoordinate = 0;
+                }
+                else if (playerAmoeba.YCoordinate < 0)
+                {
+                    playerAmoeba.YCoordinate = 10000;
+                }
 
-                playerAmoeba.XCoordinate += NewXdistance;
                 playerAmoeba.YCoordinate += NewYdistance;
-                playerAmoeba.XSpeed = NewXdistance;
+                playerAmoeba.XCoordinate += NewXdistance;
+                playerAmoeba.XSpeed = NewXdistance;              
                 playerAmoeba.YSpeed = NewYdistance;
 
                 if (playerAmoeba.Wordy == true)
