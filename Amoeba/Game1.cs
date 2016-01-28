@@ -156,7 +156,7 @@ namespace Amoeba
             setNewPlayerCoordinates(); 
 
             //If game food population drops below 100, create new foods    
-            if (currentFoodPopulation < 100) {
+            if (currentFoodPopulation < 1000) {
                 CreateNewFood();
             }
 
@@ -166,22 +166,27 @@ namespace Amoeba
                 if (randomFood.Texture != null)
                 {
                     float foodScale = (float) randomFood.Radius / (float)randomFood.Texture.Width;
-                    Vector2 foodPosition = new Vector2((float)randomFood.XCoordinate, (float)randomFood.YCoordinate);
-                    
-                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width, randomFood.Texture.Height), foodScale, SpriteEffects.None, 0);                    
+                    Vector2 foodPosition = new Vector2((float)randomFood.XCoordinate + (float)randomFood.Radius * .5f, (float)randomFood.YCoordinate + (float)randomFood.Radius * .5f);
+              
+                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width, randomFood.Texture.Height), foodScale, SpriteEffects.None, 0);      
+                
                 }
             }         
             ///Player information     
             scale = (float)playerAmoeba.Radius / playerAmoeba.Texture.Width;
-            scale3 = (float)playerAmoeba.Radius / playerSkin.Width;
-            scale2 = (float)(playerAmoeba.Radius / playerSkin.Height) / 2f;
+            scale2 = (float)playerAmoeba.Radius / (playerSkin.Width / 2f);
+            scale3 = (float)(((float)playerAmoeba.Radius / (playerSkin.Width / 2f)) * (1-.9596+1));
+            float scale4 = (float)playerAmoeba.Radius / playerSkin.Width;
 
-            
+            float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
 
-            playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
-            //Draw player     Texture,   position,       rect,    color,   rot,                           origin vector ,                                       scale size ,  effects,    depth  
-            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, new Vector2(((float)playerAmoeba.XCoordinate) + playerSkin.Width / 2f, ((float)playerAmoeba.YCoordinate) + playerSkin.Height/ 2f), scale, SpriteEffects.None, 0);
-            //spriteBatch.Draw(testSkin, playerPosition, null, Color.White, 0f, new Vector2((float)playerAmoeba.XCoordinate/playerSkin.Height, (float)playerAmoeba.YCoordinate/playerSkin.Height), scale2, SpriteEffects.None, 0);
+
+
+            playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius) , (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
+            Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
+
+            //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
+            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, 0);
 
             spriteBatch.End();
             base.Draw(gameTime);
@@ -226,16 +231,16 @@ namespace Amoeba
                     Decimal centery = playerAmoeba.YCoordinate + (playerAmoeba.Radius / 2);
 
                     //TODO: Fix collision detection, radius is not properly represented for collision
-                    if (((int)Math.Abs(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate) < (double)playerAmoeba.Radius) && 
-                        ((int)Math.Abs(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate)) < (double)playerAmoeba.Radius)
+
+                    if (Math.Sqrt(Math.Pow((double)(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate), 2) + Math.Pow((double)(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate), 2)) < (double)playerAmoeba.Radius )
                     {
                         playerAmoeba.Eat(foodAmoeba);
                         foodAmoebaList.Remove(foodAmoeba);
                         currentFoodPopulation--;
-                        Console.WriteLine("Radius: " + playerAmoeba.Radius);
-                        Console.WriteLine("X: " + playerAmoeba.XCoordinate);
-                        Console.WriteLine("Y: " + playerAmoeba.YCoordinate);
-                        Console.WriteLine("Scale: " + scale);
+                        //Console.WriteLine("Radius: " + playerAmoeba.Radius);
+                        //Console.WriteLine("X: " + playerAmoeba.XCoordinate);
+                        //Console.WriteLine("Y: " + playerAmoeba.YCoordinate);
+                        //Console.WriteLine("Scale: " + scale);
                     }
                 }
             }
@@ -260,6 +265,15 @@ namespace Amoeba
             Decimal NewXdistance;
             Decimal NewYdistance;
             int Quadrant;
+
+
+            if (playerAmoeba.Wordy == true) { 
+                Console.WriteLine(" ----------------------------------- ");
+                Console.WriteLine("MouseX: " + Xmouse + ", " + Mouse.GetState().Position.X);
+                Console.WriteLine("MouseY: " + Ymouse + ", " + Mouse.GetState().Position.Y);
+                Console.WriteLine("beginning X: " + Xplayer + ", " + playerAmoeba.XCoordinate);
+                Console.WriteLine("beginning Y: " + Yplayer + ", " + playerAmoeba.YCoordinate);
+            }
 
             // Determine quadrant the mouse is in relative to player position
             if (Xdif > 0)
@@ -332,28 +346,44 @@ namespace Amoeba
                     break;
             }
 
-            if (playerAmoeba.Wordy == true)
+            if (MousePlayerDist > playerAmoeba.Radius)
             {
-                Console.WriteLine(" ----------------------------------- ");
-                Console.WriteLine("MouseX: " + Xmouse);
-                Console.WriteLine("MouseY: " + Ymouse);
-                Console.WriteLine("beginning X: " + Xplayer);
-                Console.WriteLine("beginning Y: " + Yplayer);
-                Console.WriteLine("New X dist: " + NewXdistance);
-                Console.WriteLine("New Y dist: " + NewYdistance);
-                //Console.WriteLine("Speed: " + playerAmoeba.Speed);
-            }
 
-            if (MousePlayerDist > playerAmoeba.MaxTravelDistance)
-            {
-                playerAmoeba.XCoordinate = Xplayer + NewXdistance;
-                playerAmoeba.YCoordinate = Yplayer + NewYdistance;
+                playerAmoeba.XCoordinate += NewXdistance;
+                playerAmoeba.YCoordinate += NewYdistance;
+                playerAmoeba.XSpeed = NewXdistance;
+                playerAmoeba.YSpeed = NewYdistance;
+
+                if (playerAmoeba.Wordy == true)
+                {
+                    Console.WriteLine("Mouse outside radius");
+                    Console.WriteLine("New X dist: " + NewXdistance);
+                    Console.WriteLine("New Y dist: " + NewYdistance);
+                    Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
+                    Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
+                    //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                }
             }
             else
             {
-                playerAmoeba.XCoordinate = Xplayer + Xdif;
-                playerAmoeba.YCoordinate = Yplayer + Ydif;
+                playerAmoeba.XCoordinate += ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
+                playerAmoeba.YCoordinate += ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
+                playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
+                playerAmoeba.YSpeed = (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
+
+                if (playerAmoeba.Wordy == true)
+                {
+                    Console.WriteLine("Mouse inside radius");
+                    Console.WriteLine("New X dist: " + (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                    Console.WriteLine("New Y dist: " + (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                    Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
+                    Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
+                    //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                }
             }
-        }
+
+        } // end setNewPlayerCoordinates
+
+
     }
 }

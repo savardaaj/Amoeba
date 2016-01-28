@@ -20,6 +20,8 @@ namespace AmoebaGameModels
         
         public Decimal XCoordinate { get; set; }
         public Decimal YCoordinate { get; set; }
+        public Decimal XSpeed { get; set; }
+        public Decimal YSpeed { get; set; }
         public Decimal xCenter { get; set; }
         public Decimal yCenter { get; set; }
         //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
@@ -29,14 +31,12 @@ namespace AmoebaGameModels
 
         #region Public Properties
         //All players will begin at radius
-        public Decimal Speed { get { return this.speed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
         public Texture2D Texture { get; set; }
         public Decimal Radius { get { return this.radius; } }     
         #endregion
 
         #region Private Fields
-        private Decimal speed;
         private Decimal maxtraveldistance;
         private Decimal radius;
         #endregion
@@ -77,8 +77,9 @@ namespace AmoebaGameModels
         public Amoeba()
         {
             CellId = Guid.NewGuid ();
-            this.speed = (Decimal).05;
             this.radius = 35;
+            this.XSpeed = 0;
+            this.YSpeed = 0;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
             
         }
