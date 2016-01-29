@@ -1,11 +1,4 @@
-﻿using FarseerPhysics;
-using FarseerPhysics.Dynamics.Contacts;
-using FarseerPhysics.Dynamics;
-using FarseerPhysics.Common;
-using FarseerPhysics.Collision;
-using FarseerPhysics.Factories;
-using FarseerPhysics.Collision.Shapes; 
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
@@ -27,7 +20,7 @@ namespace Amoeba
         SpriteBatch spriteBatch;
 
         //Texture that displays orange ball for plaer
-        Texture2D playerSkin, testSkin, foodSkin;
+        Texture2D playerSkin, background, foodSkin;
 
         //Array to store different color foods
         string[] colorArray;
@@ -38,12 +31,6 @@ namespace Amoeba
         string randomColor;
         int randomX, randomY;
 
-        //Used to project the farseer objects into the world
-        World world;
-        //Body playerBody, foodBody;
-        const float unitToPixel = 100.0f;
-        const float pixelToUnit = 1 / unitToPixel;
-
         Vector2 playerPosition;
         float scale, scale2, scale3;
 
@@ -51,6 +38,8 @@ namespace Amoeba
         AmoebaGameModels.Amoeba foodAmoeba;
 
         List<AmoebaGameModels.Amoeba> foodAmoebaList;
+
+        Camera2D2 camera;
 
         public Game1()
         {
@@ -60,8 +49,6 @@ namespace Amoeba
             graphics.PreferredBackBufferWidth = 1600;
             graphics.PreferredBackBufferHeight = 1000;
             graphics.ApplyChanges();
-
-            world = new World(new Vector2(0, 0));
             Content.RootDirectory = "Content";
         }
 
@@ -83,6 +70,9 @@ namespace Amoeba
             randomColorGen = new Random();
             currentFoodPopulation = 0;
 
+            playerAmoeba.XCoordinate = (decimal) graphics.PreferredBackBufferWidth / 2;
+            playerAmoeba.YCoordinate = (decimal) graphics.PreferredBackBufferHeight / 2;
+
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
             for (int i = 0; i < 100; i++)
             {
@@ -91,6 +81,7 @@ namespace Amoeba
 
             this.IsMouseVisible = true;
 
+            camera = new Camera2D2(GraphicsDevice.Viewport);
             base.Initialize();
         }
 
@@ -102,10 +93,10 @@ namespace Amoeba
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-                
+            
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("GreenPlayer");
-            //testSkin = Content.Load<Texture2D>("TestSkin");
+            background = Content.Load<Texture2D>("SPACeOMG");
 
             playerAmoeba.Texture = playerSkin;
         }
@@ -129,18 +120,12 @@ namespace Amoeba
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            //m = y2 - y1 / x2 - x1
-            if (Mouse.GetState().Position.X - playerAmoeba.XCoordinate != 0)
-            {
-                playerAmoeba.Slope = (Mouse.GetState().Position.Y - playerAmoeba.YCoordinate) /
-                                     (Mouse.GetState().Position.X - playerAmoeba.XCoordinate);
-            }
-
+            camera.Position = new Vector2((float) playerAmoeba.XCoordinate - graphics.PreferredBackBufferWidth / 2, (float) playerAmoeba.YCoordinate - graphics.PreferredBackBufferHeight / 2);
+            
+            camera.Zoom = (float) 3/((float) playerAmoeba.Radius - 10) + .8f;
+            
             //Check for collisions
             collisionCheck();
-
-            world.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -151,12 +136,15 @@ namespace Amoeba
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            
+            var viewMatrix = camera.GetViewMatrix();
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, transformMatrix: viewMatrix);
+            
             setNewPlayerCoordinates(); 
 
             //If game food population drops below 100, create new foods    
-            if (currentFoodPopulation < 1000) {
+            if (currentFoodPopulation < 5000) {
                 CreateNewFood();
             }
 
@@ -168,26 +156,23 @@ namespace Amoeba
                     float foodScale = (float) randomFood.Radius / (float)randomFood.Texture.Width;
                     Vector2 foodPosition = new Vector2((float)randomFood.XCoordinate + (float)randomFood.Radius * .5f, (float)randomFood.YCoordinate + (float)randomFood.Radius * .5f);
               
-                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width, randomFood.Texture.Height), foodScale, SpriteEffects.None, 0);      
+                    spriteBatch.Draw(randomFood.Texture, foodPosition, null, Color.White, 0f, new Vector2(randomFood.Texture.Width, randomFood.Texture.Height), foodScale, SpriteEffects.None, .5f);      
                 
                 }
             }         
             ///Player information     
-            scale = (float)playerAmoeba.Radius / playerAmoeba.Texture.Width;
             scale2 = (float)playerAmoeba.Radius / (playerSkin.Width / 2f);
-            scale3 = (float)(((float)playerAmoeba.Radius / (playerSkin.Width / 2f)) * (1-.9596+1));
-            float scale4 = (float)playerAmoeba.Radius / playerSkin.Width;
 
             float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
-
-
 
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius) , (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
             Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
 
+            spriteBatch.Draw(background, new Rectangle(0, 0, 10000, 10000), null, Color.White, 0, new Vector2(0,0), 0, 1);
             //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
             spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, 0);
-
+            
+            
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -202,8 +187,8 @@ namespace Amoeba
             foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) 20);
             //grab random color and x,y for food
             randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
-            randomX = randomNumberGen.Next(0, graphics.PreferredBackBufferWidth);
-            randomY = randomNumberGen.Next(0, graphics.PreferredBackBufferHeight);
+            randomX = randomNumberGen.Next(0, 10000);
+            randomY = randomNumberGen.Next(0, 10000);
 
             //Set x and y
             foodAmoeba.XCoordinate = randomX;
@@ -251,8 +236,8 @@ namespace Amoeba
         // Determines the new location of the player for the next time it is drawn, stores in playerAmoeba.[X/Y]Coordinate
         protected void setNewPlayerCoordinates()
         {
-            Decimal Xmouse = Mouse.GetState().Position.X;
-            Decimal Ymouse = Mouse.GetState().Position.Y;
+            Decimal Xmouse = Mouse.GetState().Position.X + (decimal) camera.Position.X;
+            Decimal Ymouse = Mouse.GetState().Position.Y + (decimal) camera.Position.Y;
             Decimal Xplayer = playerAmoeba.XCoordinate;
             Decimal Yplayer = playerAmoeba.YCoordinate;
             Decimal Xdif = Xmouse - Xplayer;
@@ -348,10 +333,27 @@ namespace Amoeba
 
             if (MousePlayerDist > playerAmoeba.Radius)
             {
+                if (playerAmoeba.XCoordinate > 10000) 
+                {
+                    playerAmoeba.XCoordinate = 0;
+                }
+                else if (playerAmoeba.XCoordinate < 0)
+                {
+                    playerAmoeba.XCoordinate = 10000;
+                    
+                }
+                if (playerAmoeba.YCoordinate > 10000)
+                {
+                    playerAmoeba.YCoordinate = 0;
+                }
+                else if (playerAmoeba.YCoordinate < 0)
+                {
+                    playerAmoeba.YCoordinate = 10000;
+                }
 
-                playerAmoeba.XCoordinate += NewXdistance;
                 playerAmoeba.YCoordinate += NewYdistance;
-                playerAmoeba.XSpeed = NewXdistance;
+                playerAmoeba.XCoordinate += NewXdistance;
+                playerAmoeba.XSpeed = NewXdistance;              
                 playerAmoeba.YSpeed = NewYdistance;
 
                 if (playerAmoeba.Wordy == true)
@@ -366,6 +368,23 @@ namespace Amoeba
             }
             else
             {
+                if (playerAmoeba.XCoordinate > 10000)
+                {
+                    playerAmoeba.XCoordinate = 0;
+                }
+                else if (playerAmoeba.XCoordinate < 0)
+                {
+                    playerAmoeba.XCoordinate = 10000;
+
+                }
+                if (playerAmoeba.YCoordinate > 10000)
+                {
+                    playerAmoeba.YCoordinate = 0;
+                }
+                else if (playerAmoeba.YCoordinate < 0)
+                {
+                    playerAmoeba.YCoordinate = 10000;
+                }
                 playerAmoeba.XCoordinate += ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
                 playerAmoeba.YCoordinate += ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
                 playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
