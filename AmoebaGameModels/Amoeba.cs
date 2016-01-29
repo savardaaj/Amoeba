@@ -120,6 +120,8 @@ namespace AmoebaGameModels
             return System.Text.Encoding.UTF8.GetBytes (this.ToString ());
         }
 
+        
         #endregion
+
     }
 }
