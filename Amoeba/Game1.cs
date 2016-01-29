@@ -65,7 +65,7 @@ namespace Amoeba
             //create a new player amoeba
             playerAmoeba = new AmoebaGameModels.Amoeba();
 
-            colorArray = new string[] { "BlueFood", "RedFood", "GreenFood", "YellowFood", "PinkFood" };
+            colorArray = new string[] { "BlueFood", "RedFood", "OrangeFood", "YellowFood", "LightBlueFood" };
             randomNumberGen = new Random();
             randomColorGen = new Random();
             currentFoodPopulation = 0;
