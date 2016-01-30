@@ -20,7 +20,11 @@ namespace Amoeba
         SpriteBatch spriteBatch;
 
         //Texture that displays orange ball for plaer
+<<<<<<< Updated upstream
         Texture2D playerSkin, background, foodSkin;
+=======
+        static Texture2D playerSkin, testSkin, foodSkin;
+>>>>>>> Stashed changes
 
         //Array to store different color foods
         string[] colorArray;
@@ -96,7 +100,11 @@ namespace Amoeba
             
             // TODO: use this.Content to load your game content here
             playerSkin = Content.Load<Texture2D>("GreenPlayer");
+<<<<<<< Updated upstream
             background = Content.Load<Texture2D>("SPACeOMG");
+=======
+            testSkin = Content.Load<Texture2D>("TestSkin");
+>>>>>>> Stashed changes
 
             playerAmoeba.Texture = playerSkin;
         }
@@ -161,12 +169,28 @@ namespace Amoeba
                 }
             }         
             ///Player information     
+<<<<<<< Updated upstream
             scale2 = (float)playerAmoeba.Radius / (playerSkin.Width / 2f);
 
             float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
 
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius) , (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
             Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
+=======
+            //scale = .036f;
+            scale = (float) playerAmoeba.Radius / (playerSkin.Width / 2f);
+            scale2 = 1f;
+            //Vector2 origin = new Vector2((playerSkin.Width / 2f) * scale, (playerSkin.Height/ 2f) * scale);
+            //Vector2 origin = new Vector2(((float)playerAmoeba.XCoordinate + (float) playerAmoeba.Radius), ((float)playerAmoeba.YCoordinate + (float) playerAmoeba.Radius));
+            Vector2 origin = new Vector2(((float)playerAmoeba.XCoordinate), ((float)playerAmoeba.YCoordinate));
+            Vector2 origin2 = new Vector2(((float)playerAmoeba.XCoordinate), ((float)playerAmoeba.YCoordinate));
+
+            playerPosition = new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate);
+            //Draw player     Texture,   position,       rect,    color,   rot,                           origin vector ,                                       scale size ,  effects,    depth  
+            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, origin, scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(testSkin, playerPosition, null, Color.White, 0f, origin2, scale2, SpriteEffects.None, 0);
+            //spriteBatch.Draw(testSkin, playerPosition, null, Color.White, 0f, new Vector2((float)playerAmoeba.XCoordinate/playerSkin.Height, (float)playerAmoeba.YCoordinate/playerSkin.Height), scale2, SpriteEffects.None, 0);
+>>>>>>> Stashed changes
 
             spriteBatch.Draw(background, new Rectangle(0, 0, 10000, 10000), null, Color.White, 0, new Vector2(0,0), 0, 1);
             //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
@@ -212,20 +236,27 @@ namespace Amoeba
             {
                 foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
                 {
-                    Decimal centerx = playerAmoeba.XCoordinate + (playerAmoeba.Radius / 2);
-                    Decimal centery = playerAmoeba.YCoordinate + (playerAmoeba.Radius / 2);
 
                     //TODO: Fix collision detection, radius is not properly represented for collision
 
                     if (Math.Sqrt(Math.Pow((double)(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate), 2) + Math.Pow((double)(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate), 2)) < (double)playerAmoeba.Radius )
                     {
                         playerAmoeba.Eat(foodAmoeba);
+
                         foodAmoebaList.Remove(foodAmoeba);
                         currentFoodPopulation--;
+<<<<<<< Updated upstream
                         //Console.WriteLine("Radius: " + playerAmoeba.Radius);
                         //Console.WriteLine("X: " + playerAmoeba.XCoordinate);
                         //Console.WriteLine("Y: " + playerAmoeba.YCoordinate);
                         //Console.WriteLine("Scale: " + scale);
+=======
+                        Console.WriteLine("Radius: " + playerAmoeba.Radius);
+                        Console.WriteLine("X: " + playerAmoeba.XCoordinate);
+                        Console.WriteLine("Y: " + playerAmoeba.YCoordinate);
+                        Console.WriteLine("Scale: " + scale);
+                        Console.WriteLine("Width/2: " + playerSkin.Width / 2);
+>>>>>>> Stashed changes
                     }
                 }
             }
@@ -351,6 +382,7 @@ namespace Amoeba
                     playerAmoeba.YCoordinate = 10000;
                 }
 
+<<<<<<< Updated upstream
                 playerAmoeba.YCoordinate += NewYdistance;
                 playerAmoeba.XCoordinate += NewXdistance;
                 playerAmoeba.XSpeed = NewXdistance;              
@@ -399,6 +431,17 @@ namespace Amoeba
                     Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
                     //Console.WriteLine("Speed: " + playerAmoeba.Speed);
                 }
+=======
+            if (MousePlayerDist > playerAmoeba.Radius)
+            {
+                playerAmoeba.XCoordinate = Xplayer + NewXdistance;
+                playerAmoeba.YCoordinate = Yplayer + NewYdistance;
+            }
+            else
+            {
+                playerAmoeba.XCoordinate = Xplayer + Xdif* playerAmoeba.Speed;
+                playerAmoeba.YCoordinate = Yplayer + Ydif* playerAmoeba.Speed;
+>>>>>>> Stashed changes
             }
 
         } // end setNewPlayerCoordinates
