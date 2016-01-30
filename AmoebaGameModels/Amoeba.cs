@@ -128,8 +128,8 @@ namespace AmoebaGameModels
         public void GenerateVelocity()
         {
 
-            randomX = randomGenerator.NextDouble();
-            randomY = randomGenerator.NextDouble();
+            randomX = randomGenerator.NextDouble() * (.5 - (-.5)) + -.5;
+            randomY = randomGenerator.NextDouble() * (.5 - (-.5)) + -.5;
         }
 
         public void GenerateRotation()
