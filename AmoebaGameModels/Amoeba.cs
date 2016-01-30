@@ -114,7 +114,8 @@ namespace AmoebaGameModels
             return 1;
         }
 
-        public String ToString()
+        public String ToString ()
+
         {
             String json = new JavaScriptSerializer().Serialize(this);
             return json;
