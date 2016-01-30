@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaServerTest", "AmoebaS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amoeba", "..\..\Visual Studio 2013\Projects\For Fonts\For Fonts\For_Fonts\Amoeba.csproj", "{C9A0C40D-D1F7-4071-847F-6D6B32305A60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "..\..\Visual Studio 2013\Projects\For Fonts\For Fonts\For_FontsContent\Content.contentproj", "{317A34FD-3A98-4F2A-884C-9BE828CFC671}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Contents\Content.contentproj", "{317A34FD-3A98-4F2A-884C-9BE828CFC671}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
