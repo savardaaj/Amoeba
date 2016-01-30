@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
-using FarseerPhysics.Dynamics;
-using FarseerPhysics.Factories;
 using Microsoft.Xna.Framework;
 using System.Web.Script.Serialization;
 
@@ -14,40 +12,43 @@ namespace AmoebaGameModels
     {
         #region Public Fields
         //The slope in the equation y=mx+b
-        public Decimal Slope    { get; set; }
-        public Guid    CellId   { get; set; }
+        public Guid CellId { get; set; }
         public Boolean Wordy = false;
-        
+
         public Decimal XCoordinate { get; set; }
         public Decimal YCoordinate { get; set; }
-        public Decimal xCenter { get; set; }
-        public Decimal yCenter { get; set; }
-        //Exists because moving purely along the y axis (as in x=b) is not a function so slope is undefined
-        public Boolean IsMovingAlongTheY  { get; set; }
+        public Decimal XSpeed { get; set; }
+        public Decimal YSpeed { get; set; }
+
+        public float Rotation { get; set; }
+        public Vector2 Velocity { get; set; }
         public float Scale { get; set; }
+        public float Spin { get; set; }
         #endregion
 
         #region Public Properties
         //All players will begin at radius
-        public Decimal Speed { get { return this.speed; } }
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
         public Texture2D Texture { get; set; }
-        public Decimal Radius { get { return this.radius; } }     
+        public Decimal Radius { get { return this.radius; } }
+        public float randomRotation;
+        public double randomX, randomY;
         #endregion
 
         #region Private Fields
-        private Decimal speed;
         private Decimal maxtraveldistance;
         private Decimal radius;
+
+        private Random randomGenerator;
         #endregion
 
         #region Public Static Methods
 
-        public static Boolean TryParse (String input, out Amoeba output)
+        public static Boolean TryParse(String input, out Amoeba output)
         {
             try
             {
-                output = new JavaScriptSerializer ().Deserialize <Amoeba> (input);
+                output = new JavaScriptSerializer().Deserialize<Amoeba>(input);
                 return true;
             }
             catch (Exception e)
@@ -57,11 +58,11 @@ namespace AmoebaGameModels
             }
         }
 
-        public static Boolean TryParse (Byte [] input, out Amoeba output)
+        public static Boolean TryParse(Byte[] input, out Amoeba output)
         {
             try
             {
-                output = new JavaScriptSerializer ().Deserialize <Amoeba> (System.Text.Encoding.UTF8.GetString (input));
+                output = new JavaScriptSerializer().Deserialize<Amoeba>(System.Text.Encoding.UTF8.GetString(input));
                 return true;
             }
             catch (Exception e)
@@ -76,19 +77,23 @@ namespace AmoebaGameModels
         #region Public Constructors
         public Amoeba()
         {
-            CellId = Guid.NewGuid ();
-            this.speed = (Decimal).05;
+            CellId = Guid.NewGuid();
             this.radius = 35;
+            this.XSpeed = 0;
+            this.YSpeed = 0;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
-            
+
         }
 
         //Food Constructor
         public Amoeba(Decimal radius)
         {
             CellId = Guid.NewGuid();
+            randomGenerator = new Random();
             this.radius = radius;
             this.maxtraveldistance = (Decimal).00005;
+            GenerateRotation();
+            GenerateVelocity();
         }
         #endregion
 
@@ -109,18 +114,38 @@ namespace AmoebaGameModels
             return 1;
         }
 
-
         public String ToString ()
+
         {
-            String json = new JavaScriptSerializer ().Serialize (this);
+            String json = new JavaScriptSerializer().Serialize(this);
             return json;
         }
 
-        public Byte [] ToByteArray ()
+        public Byte[] ToByteArray()
         {
-            return System.Text.Encoding.UTF8.GetBytes (this.ToString ());
+            return System.Text.Encoding.UTF8.GetBytes(this.ToString());
         }
 
+        public void GenerateVelocity()
+        {
+
+            randomX = randomGenerator.NextDouble() * (.5 - (-.5)) + -.5;
+            randomY = randomGenerator.NextDouble() * (.5 - (-.5)) + -.5;
+        }
+
+        public void GenerateRotation()
+        {
+            Rotation = randomGenerator.Next(1, 360);
+            if (Rotation > 180)
+            {
+                Spin = -.01f;
+            }
+            else
+            {
+                Spin = .01f;
+            }
+        }
         #endregion
+
     }
 }
