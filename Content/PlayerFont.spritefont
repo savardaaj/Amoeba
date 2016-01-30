@@ -6,12 +6,12 @@ of the font in your game, and to change the characters which are available to dr
 with.
 -->
 <XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
-  <Asset Type="Graphics:FontDescription">
+  <Asset Type="Graphics:FontDescription">  
 
     <!--
     Modify this string to change the font that will be imported.
     -->
-    <FontName>shablagoo</FontName>
+    <FontName>Comic Sans MS</FontName>
 
     <!--
     Size is a float value, measured in points. Modify this value to change

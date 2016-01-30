@@ -204,8 +204,7 @@ namespace Amoeba
             foodAmoeba.YCoordinate = randomNumberGen.Next(0, 10000);
 
             //Food successfully created
-            foodSkin = Content.Load<Texture2D>(randomColor);
-            foodAmoeba.Texture = foodSkin;
+            foodAmoeba.Texture = Content.Load<Texture2D>(randomColor);
 
             currentFoodPopulation++;
 
