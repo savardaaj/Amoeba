@@ -11,7 +11,7 @@ namespace AmoebaServer
     {
         static void Main (string [] args)
         {
-            Server serverObject = new Server ();
+            Server serverObject = new Server (11000);
 
             Task.Factory.StartNew (() =>
             {
@@ -25,7 +25,7 @@ namespace AmoebaServer
             {
                 if(serverObject.DataList.Count > packets)
                 { 
-                    Console.WriteLine (serverObject.DataList[packets]);
+   //                 Console.WriteLine (serverObject.DataList[packets]);
                     packets++;
                 }
             } while (true);

@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}</ProjectGuid>
+    <ProjectGuid>{26046204-C78D-4B96-BCA2-42532C0D71C5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AmoebaServerTest</RootNamespace>
-    <AssemblyName>AmoebaServerTest</AssemblyName>
+    <RootNamespace>AmoebaGameModelsTest</RootNamespace>
+    <AssemblyName>AmoebaGameModelsTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -57,11 +57,12 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AmoebaServer\AmoebaServer.csproj">
-      <Project>{eb0c5e55-0cbf-43ad-b1ee-c4ed63a13141}</Project>
-      <Name>AmoebaServer</Name>
+    <ProjectReference Include="..\AmoebaGameModels\AmoebaGameModels.csproj">
+      <Project>{943c0f0e-b5e8-4476-a33e-d32a757de31c}</Project>
+      <Name>AmoebaGameModels</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
