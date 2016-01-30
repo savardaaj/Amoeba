@@ -41,11 +41,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-<<<<<<< Updated upstream
     <Compile Include="Camera2D2.cs" />
-=======
     <Compile Include="Camera.cs" />
->>>>>>> Stashed changes
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
