@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaGameModels", "AmoebaGameModels\AmoebaGameModels.csproj", "{943C0F0E-B5E8-4476-A33E-D32A757DE31C}"
 EndProject
@@ -12,8 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaGameModelsTest", "AmoebaGameModelsTest\AmoebaGameModelsTest.csproj", "{26046204-C78D-4B96-BCA2-42532C0D71C5}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amoeba", "Amoeba\Amoeba.csproj", "{C9A0C40D-D1F7-4071-847F-6D6B32305A60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Contents\Content.contentproj", "{317A34FD-3A98-4F2A-884C-9BE828CFC671}"
->>>>>>> 7359e03977420a0e5c98020bb0007f5cbbb7dc23
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Content\Content.contentproj", "{317A34FD-3A98-4F2A-884C-9BE828CFC671}"
+>>>>>>> 4ffeb75d9788f653c48706944fa78052a8ca0131
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

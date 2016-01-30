@@ -92,6 +92,11 @@
       <Project>{eb0c5e55-0cbf-43ad-b1ee-c4ed63a13141}</Project>
       <Name>AmoebaServer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Content\Content.contentproj">
+      <Project>{317A34FD-3A98-4F2A-884C-9BE828CFC671}</Project>
+      <Name>Content</Name>
+      <XnaReferenceType>Content</XnaReferenceType>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
