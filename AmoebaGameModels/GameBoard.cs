@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace AmoebaGameModels
 {
-    class GameBoard
+    public class GameBoard
     {
         public Int32 Width { get; private set; }
         public Int32 Height { get; private set; }
@@ -17,6 +17,9 @@ namespace AmoebaGameModels
         public  Int32 MaxFoodPieces { get; private set; }
 
         public Dictionary <Guid, Amoeba> GamePieces;
+
+        public GameBoard ()
+        { }
 
         public List <Amoeba> GetFoodPieces ()
         {

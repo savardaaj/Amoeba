@@ -11,24 +11,35 @@ namespace AmoebaServer
     {
         static void Main (string [] args)
         {
-            Server serverObject = new Server ();
+            Server serverObject = new Server (11000);
+            Boolean isCanceled = false;
+            GameBoard board = new GameBoard ();
+            Amoeba recievedAmoeba;
+
+            serverObject.Listen ();
 
             Task.Factory.StartNew (() =>
             {
-                
-                serverObject.Listen ();
-                
+                if (Console.ReadLine ().Equals ("cancel", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    isCanceled = true;
+                }
             });
 
-            int packets = 0;
-            do
+            while (isCanceled != true)
             {
-                if(serverObject.DataList.Count > packets)
-                { 
-                    Console.WriteLine (serverObject.DataList[packets]);
-                    packets++;
+                foreach (Amoeba amoeba in board.GamePieces.Values)
+                {
+                    serverObject.SendToAll (amoeba.ToByteArray ());
                 }
-            } while (true);
+
+                foreach (Byte [] amoebaArray in serverObject.DataList.Values)
+                {
+                    Amoeba.TryParse (amoebaArray.Skip(8).ToArray (), out recievedAmoeba);
+                    board.GamePieces [recievedAmoeba.CellId] = recievedAmoeba;
+                }
+
+            }
         }
     }
 }
