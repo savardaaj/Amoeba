@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System;
@@ -17,30 +19,38 @@ namespace Amoeba
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Camera2D2 camera;
-        float gameClock;
+        KeyboardState keyboardState, prevKeyboardState;
+        GameStates gameState;
+        enum GameStates {Menu, Playing}
+        float gameClockSeconds, gameClockMinutes, gameClockHours;
+        EventHandler<TextInputEventArgs> onTextEntered;
 
+        Quadtree quadTree;
+        #endregion
+
+        #region login screen related fields
+        SpriteFont playerNameEntrySpriteFont;
+        SpriteFont playerNameLabelSpriteFont;
+        String playerNameString;
+        Texture2D playerNameBox;
         #endregion
 
         #region Background Related Fields
         List<Vector2> starPositions;
         List<float> starSizes;
-        Texture2D starSmall;
-        SpriteFont radiusFont, playerFont, playerFontBackground, gameClockFont;
+        Texture2D starTexture;
+        SpriteFont radiusSpriteFont, playerSpriteFont, playerTextShadowSpriteFont, gameClockSpriteFont;
 
-        Vector2 fontPos;
+        Vector2 radiusFontPosition;
         #endregion
 
         #region Player and Food Related Fields
-        public const int maxFoodPopulation = 100;
+        public const int maxFoodPopulation = 1000;
         int currentFoodPopulation;
 
-        //Game Objects
         AmoebaGameModels.Amoeba playerAmoeba;
         AmoebaGameModels.Amoeba foodAmoeba;
         List<AmoebaGameModels.Amoeba> foodAmoebaList;
-
-        //Textures for player and food
-        Texture2D playerSkin, foodSkin;
 
         //Array to store different color foods
         string[] colorArray;
@@ -55,6 +65,13 @@ namespace Amoeba
         float foodScale;
         Vector2 foodPosition;
         #endregion
+
+        Vector2 v1;
+        AmoebaGameModels.Amoeba food1, food2;
+        int collide = 0;
+        Rectangle nearbyFood;
+        
+        AmoebaGameModels.Amoeba targetFood;
 
         public Game1()
         {
@@ -78,13 +95,18 @@ namespace Amoeba
             //create a new player amoeba
             playerAmoeba = new AmoebaGameModels.Amoeba();
 
+            quadTree = new Quadtree(0, new Rectangle(0, 0, 10000, 10000));
+
+            gameState = GameStates.Menu;
+            playerNameString = "";
+
             colorArray = new string[] { "asteroid" };
             randomNumberGen = new Random();
             randomColorGen = new Random();
             currentFoodPopulation = 0;
 
-            playerAmoeba.XCoordinate = (decimal) graphics.PreferredBackBufferWidth / 2;
-            playerAmoeba.YCoordinate = (decimal) graphics.PreferredBackBufferHeight / 2;
+            playerAmoeba.XCoordinate = (double) graphics.PreferredBackBufferWidth / 2;
+            playerAmoeba.YCoordinate = (double) graphics.PreferredBackBufferHeight / 2;
 
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
             for (int i = 0; i < 100; i++)
@@ -110,8 +132,10 @@ namespace Amoeba
                 starSizes.Add(randomY);
             }
 
-            this.IsMouseVisible = true;
 
+            Window.TextInput += HandleInput;
+
+            this.IsMouseVisible = true;
             camera = new Camera2D2(GraphicsDevice.Viewport);
             base.Initialize();
         }
@@ -121,20 +145,21 @@ namespace Amoeba
         /// all of your content.
         /// </summary>
         protected override void LoadContent()
-        {
+        {          
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
-            playerSkin = Content.Load<Texture2D>("GreenPlayer");
-            starSmall = Content.Load<Texture2D>("starSmall");
+            playerAmoeba.Texture = Content.Load<Texture2D>("GreenPlayer");
+            starTexture = Content.Load<Texture2D>("star");
 
-            playerAmoeba.Texture = playerSkin;
+            radiusSpriteFont = Content.Load<SpriteFont>("Radius");
+            playerSpriteFont = Content.Load<SpriteFont>("PlayerFont");
+            playerTextShadowSpriteFont = Content.Load<SpriteFont>("PlayerFontBackground");
+            gameClockSpriteFont = Content.Load<SpriteFont>("GameClock");
+            playerNameEntrySpriteFont = Content.Load<SpriteFont>("PlayerNameEntry");
+            playerNameLabelSpriteFont = Content.Load<SpriteFont>("PlayerNameLabel");
 
-            radiusFont = Content.Load<SpriteFont>("Radius");
-            playerFont = Content.Load<SpriteFont>("PlayerFont");
-            playerFontBackground = Content.Load<SpriteFont>("PlayerFontBackground");
-            gameClockFont = Content.Load<SpriteFont>("GameClock");
-
+            playerNameBox = Content.Load<Texture2D>("WhiteBackgroundLogin");
         }
 
         /// <summary>
@@ -155,13 +180,50 @@ namespace Amoeba
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+         
 
+            // TODO Camera zoom needs to be more substantial when player gets larger
             camera.Position = new Vector2((float) playerAmoeba.XCoordinate - graphics.PreferredBackBufferWidth / 2, (float) playerAmoeba.YCoordinate - graphics.PreferredBackBufferHeight / 2);            
             camera.Zoom = (float) 3/((float) playerAmoeba.Radius - 10) + .8f;
 
-            fontPos = new Vector2((float) playerAmoeba.XCoordinate, (float) (playerAmoeba.YCoordinate - (decimal)playerAmoeba.Radius - 30));
+            radiusFontPosition = new Vector2((float) playerAmoeba.XCoordinate, (float) (playerAmoeba.YCoordinate - (double) playerAmoeba.Radius - 30));
 
+            ////food collision stuff
+            quadTree.clear();
+            for (int i = 0; i < foodAmoebaList.Count; i++)
+            {
+                quadTree.insert(new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
+            }
+
+
+            //Returned objects are the objects that are next to the food amoeba at i
+            ArrayList returnObjects = new ArrayList();
             
+            for (int i = 0; i < foodAmoebaList.Count; i++)
+            {
+                returnObjects.Clear();
+                returnObjects = quadTree.retrieve(returnObjects, new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
+                targetFood = foodAmoebaList[i];
+                v1 = new Vector2((float)targetFood.XCoordinate, (float)targetFood.YCoordinate);
+                for (int x = 0; x < returnObjects.Count; x++)
+                {
+                    nearbyFood = (Rectangle) returnObjects[x];
+                    
+                    // Run collision detection algorithm between objects
+                    // TODO Detecting Every object for some reason, bad. fix. FIX
+                    //Console.WriteLine("TargetX: {0} \n" + 
+                     //                  "TargetY: {1} \n" +
+                      //                 "Nearby: {2} \n" +
+                       //                "NearbyY: {3} ", );
+                    if (targetFood.XCoordinate + (double) targetFood.Radius > nearbyFood.X &&
+                        targetFood.YCoordinate + (double) targetFood.Radius > nearbyFood.Y)
+                    {
+                        OnFoodCollision();
+                    }
+
+                }
+            }
+
 
             //Check for collisions
             collisionCheck();
@@ -174,17 +236,34 @@ namespace Amoeba
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
-            
+            GraphicsDevice.Clear(Color.Black);      
             var viewMatrix = camera.GetViewMatrix();
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, transformMatrix: viewMatrix);
 
-            gameClock += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if (gameState == GameStates.Menu)
+            {
+                GraphicsDevice.Clear(Color.Black);
+                
+                //keyboard related code start
+                drawLoginScreen();
+                drawBackgroundObjects();
+                drawFood();
 
-            drawStrings();
-            drawBackgroundObjects();
-            drawFood();
-            drawPlayer();
+                KeyboardState keyState = Keyboard.GetState();
+                prevKeyboardState = keyState;
+            }
+            
+            else if (gameState == GameStates.Playing)
+            {
+                gameClockSeconds = (float)gameTime.TotalGameTime.TotalSeconds;
+                gameClockMinutes = (float)gameTime.TotalGameTime.TotalMinutes * .5f;
+                gameClockHours = (float)gameTime.TotalGameTime.TotalHours;
+
+                drawStrings();
+                drawBackgroundObjects();
+                drawFood();
+                drawPlayer();
+            }
        
             spriteBatch.End();
             base.Draw(gameTime);
@@ -197,7 +276,11 @@ namespace Amoeba
          */
         protected void CreateNewFood()
         {
+            //TODO Add event listener to food to detect collisions with player
+
             foodAmoeba = new AmoebaGameModels.Amoeba((Decimal) 20);
+            FoodCollision += HandleFoodCollision;
+
             //grab random color and x,y for food
             randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
             foodAmoeba.XCoordinate = randomNumberGen.Next(0, 10000);
@@ -212,53 +295,38 @@ namespace Amoeba
             foodAmoebaList.Add(foodAmoeba);          
         }
 
-        /*
-         * This method loops through each food object in the game and checks for a collision with the player
-         * If a collision is detected, the food object is removed from the game, population decreases
-         * 
-         * TODO: Create listeners for each food object so that looping through each one becomes unnecessary
-         */
-        protected void collisionCheck()
-        {           
-            //Try-catch to prevent game from crashing when removing an object
-            try
-            {
-                foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
-                {
-
-                    if (Math.Sqrt(Math.Pow((double)(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate), 2) +
-                        Math.Pow((double)(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate), 2)) < (double)playerAmoeba.Radius)
-                    {
-                        playerAmoeba.Eat(foodAmoeba);
-                        foodAmoebaList.Remove(foodAmoeba);
-                        currentFoodPopulation--;
-                    }
-                }
-            }
-            catch (InvalidOperationException e)
-            {}
+        public void drawLoginScreen()
+        {
+            spriteBatch.Draw(playerNameBox, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 100, graphics.PreferredBackBufferHeight / 2 - 30, 200, 25), null, Color.White, 0f, new Vector2(0,0), SpriteEffects.None, 1f);
+            Vector2 playerNameEntryOrigin = playerNameEntrySpriteFont.MeasureString(playerNameString) / 2;
+            string playerNameLabelString = "Name:";
+            Vector2 playerNameLabelOrigin = playerNameLabelSpriteFont.MeasureString(playerNameLabelString) / 2;
+            spriteBatch.DrawString(playerNameLabelSpriteFont, playerNameLabelString, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2 - 50),
+                                    Color.White, 0f, playerNameLabelOrigin, 1f, SpriteEffects.None, .5f);
+            spriteBatch.DrawString(playerNameEntrySpriteFont, playerNameString, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2 -15),
+                                    Color.Black, 0f, playerNameEntryOrigin, 1f, SpriteEffects.None, .5f);
         }
 
         //Use this function to draw the SpriteFonts into the game
         public void drawStrings() {
             string radiusString = "Radius: " + playerAmoeba.Radius;
-            string playerString = "Alex";
-            string playerBackgroundString = "Alex";
-            string gameClockString = "Gametime: " + Math.Round(gameClock, 0);
-            Vector2 FontOrigin = radiusFont.MeasureString(radiusString) / 2;
-            Vector2 playerFontOrigin = playerFont.MeasureString(playerString) / 2;
-            Vector2 gameClockOrigin = gameClockFont.MeasureString(gameClockString) / 2;
+            string playerString = playerNameString;
+            string playerBackgroundString = playerNameString;
+            string gameClockString = String.Format("Gametime: {0:00}:{1:00}:{2:00}", Math.Round(gameClockHours, 0) % 60, Math.Round(gameClockMinutes, 0) % 60, Math.Round(gameClockSeconds, 0) % 60);
+            Vector2 FontOrigin = radiusSpriteFont.MeasureString(radiusString) / 2;
+            Vector2 playerFontOrigin = playerSpriteFont.MeasureString(playerString) / 2;
+            Vector2 gameClockOrigin = gameClockSpriteFont.MeasureString(gameClockString) / 2;
 
-            spriteBatch.DrawString(radiusFont, radiusString, fontPos, Color.Green, 0, FontOrigin, 1.0f, SpriteEffects.None, .1f);
-            spriteBatch.DrawString(playerFont, playerString, new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate), Color.White, 0f, playerFontOrigin, 1.0f, SpriteEffects.None, .1f);
-            spriteBatch.DrawString(playerFontBackground, playerBackgroundString, new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate), Color.Black, 0f, playerFontOrigin, 1.1f, SpriteEffects.None, .1f);
-            spriteBatch.DrawString(gameClockFont, gameClockString, new Vector2((float)playerAmoeba.XCoordinate + 700, (float)playerAmoeba.YCoordinate - 500), Color.White, 0f, gameClockOrigin, 1.0f, SpriteEffects.None, .1f);
+            spriteBatch.DrawString(radiusSpriteFont, radiusString, radiusFontPosition, Color.Green, 0, FontOrigin, 1.0f, SpriteEffects.None, .1f);
+
+            spriteBatch.DrawString(playerTextShadowSpriteFont, playerBackgroundString, new Vector2((float)playerAmoeba.XCoordinate, (float)playerAmoeba.YCoordinate), Color.Black, 0f, playerFontOrigin, 1.1f, SpriteEffects.None, .1f);
+            spriteBatch.DrawString(gameClockSpriteFont, gameClockString, new Vector2((float)playerAmoeba.XCoordinate + 700, (float)playerAmoeba.YCoordinate - 500), Color.White, 0f, gameClockOrigin, 1.0f, SpriteEffects.None, .1f);
         }
 
         public void drawFood()
         {
             //If game food population drops below 100, create new foods    
-            if (currentFoodPopulation < 5000)
+            if (currentFoodPopulation < maxFoodPopulation)
             {
                 CreateNewFood();
             }
@@ -268,41 +336,154 @@ namespace Amoeba
             {
                 if (randomFood.Texture != null)
                 {
+                    // TODO Check to see if food collides with another food, make them bounce off of eachother 
                     foodScale = (float)randomFood.Radius / (float)randomFood.Texture.Width;
                     //Add the "floating" velocity
-                    randomFood.XCoordinate += (decimal)randomFood.randomX;
-                    randomFood.YCoordinate += (decimal)randomFood.randomY;
+                    randomFood.XCoordinate += (double)randomFood.randomX;
+                    randomFood.YCoordinate += (double)randomFood.randomY;
                     foodPosition = new Vector2((float) randomFood.XCoordinate + (float)randomFood.Radius * .5f, (float)randomFood.YCoordinate + (float)randomFood.Radius * .5f + randomFood.Velocity.Y);
 
-                    spriteBatch.Draw(randomFood.Texture, new Vector2(foodPosition.X, foodPosition.Y), null, Color.White, randomFood.Rotation += randomFood.Spin, new Vector2(randomFood.Texture.Width / 2, randomFood.Texture.Height / 2), foodScale, SpriteEffects.None, .5f);
+                    spriteBatch.Draw(randomFood.Texture, new Vector2(foodPosition.X, foodPosition.Y), null, Color.White, randomFood.Rotation += randomFood.Spin, new Vector2(randomFood.Texture.Width / 2, randomFood.Texture.Height / 2), foodScale, SpriteEffects.None, .3f);
                 }
             }         
         }
 
+        /* *****summary*****
+         * This function draws the player texture to the screen
+         */
         public void drawPlayer()
         {
             setNewPlayerCoordinates();
             ///Player information     
-            scale2 = (float)playerAmoeba.Radius / (playerSkin.Width / 2f);
+            scale2 = (float)playerAmoeba.Radius / (playerAmoeba.Texture.Width / 2f);
 
             float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
 
             playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius), (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
             Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
 
-            //spriteBatch.Draw(background, new Rectangle(0, 0, 10000, 10000), null, Color.White, 0, new Vector2(0,0), 0, 1);
             //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
-            spriteBatch.Draw(playerSkin, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, .2f);
+            spriteBatch.Draw(playerAmoeba.Texture, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, .2f);
         }
 
-        //Use this function to draw images into the background
+        /* *****summary*****
+         * This function draws the stars onto the background of the game at varying sizes and locations
+         */
         public void drawBackgroundObjects()
+        {          
+            for(int i = 0; i < 500; i++)
+                spriteBatch.Draw(starTexture, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starTexture.Width), SpriteEffects.None, .4f);           
+        }
+
+        /*
+        * This method loops through each food object in the game and checks for a collision with the player
+        * If a collision is detected, the food object is removed from the game, population decreases
+        * 
+        * TODO: Create listeners for each food object so that looping through each one becomes unnecessary
+        */
+        protected void collisionCheck()
         {
             
-            for(int i = 0; i < 500; i++){
-                spriteBatch.Draw(starSmall, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starSmall.Width), SpriteEffects.None, .3f);
-            }
+            //Try-catch to prevent game from crashing when removing an object
+            try
+            {
+                foreach (AmoebaGameModels.Amoeba foodAmoeba in foodAmoebaList)
+                {
+                    
+                    //Check to see if foodAmoeba collides with the player
+                    if ((Math.Sqrt(Math.Pow((double)(foodAmoeba.XCoordinate - playerAmoeba.XCoordinate), 2) +
+                        Math.Pow((double)(foodAmoeba.YCoordinate - playerAmoeba.YCoordinate), 2)) < (double)playerAmoeba.Radius) && gameState == GameStates.Playing)
+                    {
+                        playerAmoeba.Eat(foodAmoeba);
+                        foodAmoebaList.Remove(foodAmoeba);
+                        currentFoodPopulation--;
+                    }
+                    else if (foodAmoeba.XCoordinate > 10000)
+                    {
+                        foodAmoeba.XCoordinate = 0;
+                    }
+                    else if (foodAmoeba.XCoordinate < 0)
+                    {
+                        foodAmoeba.XCoordinate = 10000;
+                    }
+                    else if (foodAmoeba.YCoordinate > 10000)
+                    {
+                        foodAmoeba.YCoordinate = 0;
+                    }
+                    else if (foodAmoeba.YCoordinate < 0)
+                    {
+                        foodAmoeba.YCoordinate = 10000;
+                    }
 
+                }
+            }
+            catch (InvalidOperationException e)
+            { }
+        }
+
+        /* *****summary*****
+         * Invokes the event handler function HandleInput when input is detected
+         */
+        protected void TextEntered(object sender, TextInputEventArgs e) {
+            if(onTextEntered != null)
+                onTextEntered.Invoke(sender, e);
+        }
+
+        /* *****summary*****
+         * This function handles and interrets what to do with user input from keyboard
+         * Use this function to add more features or keys and special cases
+         */
+        protected void HandleInput(object sender, TextInputEventArgs e)
+        {
+            char charEntered = e.Character;
+
+            if (charEntered == '\r')
+            {
+                gameState = GameStates.Playing;
+            }
+            else if (charEntered == '\b')
+            {
+                playerNameString = playerNameString.Remove(playerNameString.Length - 1);
+            }
+            else 
+                playerNameString += charEntered;
+        }
+
+
+        public event EventHandler FoodCollision;
+
+        public void HandleFoodCollision(object sender, EventArgs eventArgs)
+        {
+            // TODO Calculate new food velocity when two foods collide
+            //u = (v * n / n * n) n: v is velocity, n is surface normal (x*x + y*y) - dot product of two vectors
+            //Console.WriteLine(collide);
+            //collide++;
+            //Vector2 n1 = new Vector2(nearbyFood.X, nearbyFood.Y);
+            //Vector2 u1 = ((v1 * n1)) * n1;
+            //Vector2 w1 = v1 - u1;
+            //Vector2 vP1 = w1 - u1;
+
+            //Vector2 u2 = ((n1 * v1)) * v1;
+            //Vector2 w2 = n1 - u2;
+            //Vector2 vP2 = w2 - u2;
+
+            //nearbyFood.X += (int)vP2.X;
+            //targetFood.XCoordinate += vP1.X;
+            //targetFood.YCoordinate += vP1.Y;
+            //nearbyFood.Y += (int)vP2.Y;
+
+            //targetFood.XCoordinate += -targetFood.XCoordinate;
+            //targetFood.YCoordinate += -targetFood.YCoordinate;
+
+            //w = v - u: new Vector(targetFood.X, targetFood.Y) - u;
+            //v' = w - u: w parallel to wall, u perpendicular to wall
+            //v' = 
+        }
+
+        public void OnFoodCollision()
+        {
+            if (FoodCollision != null)
+                HandleFoodCollision(this, EventArgs.Empty);
         }
 
         // Determines the new location of the player for the next time it is drawn, stores in playerAmoeba.[X/Y]Coordinate
@@ -310,10 +491,10 @@ namespace Amoeba
         {
             Decimal Xmouse = Mouse.GetState().Position.X + (decimal) camera.Position.X;
             Decimal Ymouse = Mouse.GetState().Position.Y + (decimal) camera.Position.Y;
-            Decimal Xplayer = playerAmoeba.XCoordinate;
-            Decimal Yplayer = playerAmoeba.YCoordinate;
-            Decimal Xdif = Xmouse - Xplayer;
-            Decimal Ydif = Ymouse - Yplayer;
+            double Xplayer = playerAmoeba.XCoordinate;
+            double Yplayer = playerAmoeba.YCoordinate;
+            Decimal Xdif = Xmouse - (Decimal) Xplayer;
+            Decimal Ydif = Ymouse - (Decimal) Yplayer;
             Decimal MousePlayerDist = (decimal)Math.Sqrt(Math.Pow((double)Xdif, 2) + Math.Pow((double)Ydif, 2)); // pathagorean theorem
 
             Decimal Angle;
@@ -423,8 +604,8 @@ namespace Amoeba
                     playerAmoeba.YCoordinate = 10000;
                 }
 
-                playerAmoeba.YCoordinate += NewYdistance;
-                playerAmoeba.XCoordinate += NewXdistance;
+                playerAmoeba.YCoordinate += (double) NewYdistance;
+                playerAmoeba.XCoordinate += (double) NewXdistance;
                 playerAmoeba.XSpeed = NewXdistance;              
                 playerAmoeba.YSpeed = NewYdistance;
 
@@ -457,8 +638,8 @@ namespace Amoeba
                 {
                     playerAmoeba.YCoordinate = 10000;
                 }
-                playerAmoeba.XCoordinate += ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
-                playerAmoeba.YCoordinate += ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
+                playerAmoeba.XCoordinate += (double) ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
+                playerAmoeba.YCoordinate += (double) ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
                 playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
                 playerAmoeba.YSpeed = (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
 

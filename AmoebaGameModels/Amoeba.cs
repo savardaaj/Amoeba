@@ -15,8 +15,8 @@ namespace AmoebaGameModels
         public Guid CellId { get; set; }
         public Boolean Wordy = false;
 
-        public Decimal XCoordinate { get; set; }
-        public Decimal YCoordinate { get; set; }
+        public double XCoordinate { get; set; }
+        public double YCoordinate { get; set; }
         public Decimal XSpeed { get; set; }
         public Decimal YSpeed { get; set; }
 
@@ -146,6 +146,8 @@ namespace AmoebaGameModels
             }
         }
         #endregion
+
+
 
     }
 }
