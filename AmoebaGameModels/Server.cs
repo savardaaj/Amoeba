@@ -99,10 +99,10 @@ namespace AmoebaGameModels
 
         public void SendToAll (Byte [] data)
         {
-            foreach (IPEndPoint client in this.clientList)
+            Parallel.ForEach (this.clientList, client =>
             {
                 this.SendTo (data, client);
-            }
+            });
         }
     }
 }
