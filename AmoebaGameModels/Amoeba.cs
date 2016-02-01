@@ -30,14 +30,14 @@ namespace AmoebaGameModels
         //All players will begin at radius
         public Decimal MaxTravelDistance { get { return this.maxtraveldistance; } }
         public Texture2D Texture { get; set; }
-        public Decimal Radius { get { return this.radius; } }
+        public Decimal Radius { get; set; }
+        public string Name { get; set; }
         public float randomRotation;
         public double randomX, randomY;
         #endregion
 
         #region Private Fields
         private Decimal maxtraveldistance;
-        private Decimal radius;
 
         private Random randomGenerator;
         #endregion
@@ -78,10 +78,10 @@ namespace AmoebaGameModels
         public Amoeba()
         {
             CellId = Guid.NewGuid();
-            this.radius = 35;
+            this.Radius = 35;
             this.XSpeed = 0;
             this.YSpeed = 0;
-            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
 
         }
 
@@ -90,10 +90,20 @@ namespace AmoebaGameModels
         {
             CellId = Guid.NewGuid();
             randomGenerator = new Random();
-            this.radius = radius;
+            this.Radius = radius;
             this.maxtraveldistance = (Decimal).00005;
             GenerateRotation();
             GenerateVelocity();
+        }
+
+        public Amoeba(Decimal radius, string name)
+        {
+            CellId = Guid.NewGuid();
+            this.Radius = radius;
+            this.Name = name;
+            this.XSpeed = 0;
+            this.YSpeed = 0;
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
         }
         #endregion
 
@@ -102,10 +112,10 @@ namespace AmoebaGameModels
         public Decimal Eat(Amoeba Food)
         {
             //this.radius = (Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5)));
-            this.radius += 1;
-            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.radius), -0.439));
+            this.Radius += 1;
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
             Scale += .1f;
-            return this.radius;
+            return this.Radius;
         }
 
         public Decimal SpeedBySize()

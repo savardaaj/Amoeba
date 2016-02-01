@@ -21,7 +21,9 @@ namespace Amoeba
         Camera2D2 camera;
         KeyboardState keyboardState, prevKeyboardState;
         GameStates gameState;
+        PlayerState playerState;
         enum GameStates {Menu, Playing}
+        enum PlayerState { ingular, Split, MaxSplit}
         float gameClockSeconds, gameClockMinutes, gameClockHours;
         EventHandler<TextInputEventArgs> onTextEntered;
 
@@ -31,7 +33,6 @@ namespace Amoeba
         #region login screen related fields
         SpriteFont playerNameEntrySpriteFont;
         SpriteFont playerNameLabelSpriteFont;
-        String playerNameString;
         Texture2D playerNameBox;
         #endregion
 
@@ -45,13 +46,15 @@ namespace Amoeba
         #endregion
 
         #region Player and Food Related Fields
-        public const int maxFoodPopulation = 1000;
+        public const int maxFoodPopulation = 10;
+        public const int maxStarPopulation = 500;
         int currentFoodPopulation;
 
         AmoebaGameModels.Amoeba playerAmoeba;
+        AmoebaGameModels.Amoeba newPlayerAmoeba;
         AmoebaGameModels.Amoeba foodAmoeba;
         List<AmoebaGameModels.Amoeba> foodAmoebaList;
-
+        List<AmoebaGameModels.Amoeba> playerAmoebaList;
         //Array to store different color foods
         string[] colorArray;
 
@@ -92,13 +95,14 @@ namespace Amoeba
         /// </summary>
         protected override void Initialize()
         {
+            playerAmoebaList = new List<AmoebaGameModels.Amoeba>();
             //create a new player amoeba
-            playerAmoeba = new AmoebaGameModels.Amoeba();
+            playerAmoeba = new AmoebaGameModels.Amoeba(35, "");
+            playerAmoebaList.Add(playerAmoeba);
 
             quadTree = new Quadtree(0, new Rectangle(0, 0, 10000, 10000));
 
             gameState = GameStates.Menu;
-            playerNameString = "";
 
             colorArray = new string[] { "asteroid" };
             randomNumberGen = new Random();
@@ -109,7 +113,7 @@ namespace Amoeba
             playerAmoeba.YCoordinate = (double) graphics.PreferredBackBufferHeight / 2;
 
             foodAmoebaList = new List<AmoebaGameModels.Amoeba>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             {
                 CreateNewFood();                 
             }
@@ -118,7 +122,7 @@ namespace Amoeba
             //Store into lists to later reference and draw
             starPositions = new List<Vector2>();
             starSizes = new List<float>();
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 500; i++)
             {
                 //Generate positions for stars
                 randomX = randomNumberGen.Next(0, 10000);
@@ -180,7 +184,10 @@ namespace Amoeba
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-         
+
+            //If the player has split 4 times, he can no longer split
+            if (playerAmoebaList.Count == 16)
+                playerState = PlayerState.MaxSplit;
 
             // TODO Camera zoom needs to be more substantial when player gets larger
             camera.Position = new Vector2((float) playerAmoeba.XCoordinate - graphics.PreferredBackBufferWidth / 2, (float) playerAmoeba.YCoordinate - graphics.PreferredBackBufferHeight / 2);            
@@ -194,8 +201,6 @@ namespace Amoeba
             {
                 quadTree.insert(new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
             }
-
-
             //Returned objects are the objects that are next to the food amoeba at i
             ArrayList returnObjects = new ArrayList();
             
@@ -211,12 +216,11 @@ namespace Amoeba
                     
                     // Run collision detection algorithm between objects
                     // TODO Detecting Every object for some reason, bad. fix. FIX
-                    //Console.WriteLine("TargetX: {0} \n" + 
-                     //                  "TargetY: {1} \n" +
-                      //                 "Nearby: {2} \n" +
-                       //                "NearbyY: {3} ", );
+
                     if (targetFood.XCoordinate + (double) targetFood.Radius > nearbyFood.X &&
-                        targetFood.YCoordinate + (double) targetFood.Radius > nearbyFood.Y)
+                        targetFood.YCoordinate + (double) targetFood.Radius > nearbyFood.Y &&
+                        targetFood.XCoordinate - (double) targetFood.Radius < nearbyFood.X &&
+                        targetFood.YCoordinate - (double) targetFood.Radius < nearbyFood.X)
                     {
                         OnFoodCollision();
                     }
@@ -298,20 +302,22 @@ namespace Amoeba
         public void drawLoginScreen()
         {
             spriteBatch.Draw(playerNameBox, new Rectangle(graphics.PreferredBackBufferWidth / 2 - 100, graphics.PreferredBackBufferHeight / 2 - 30, 200, 25), null, Color.White, 0f, new Vector2(0,0), SpriteEffects.None, 1f);
-            Vector2 playerNameEntryOrigin = playerNameEntrySpriteFont.MeasureString(playerNameString) / 2;
+            Vector2 playerNameEntryOrigin = new Vector2(0,0);
+            playerNameEntryOrigin = playerNameEntrySpriteFont.MeasureString(playerAmoeba.Name) / 2;
+
             string playerNameLabelString = "Name:";
             Vector2 playerNameLabelOrigin = playerNameLabelSpriteFont.MeasureString(playerNameLabelString) / 2;
             spriteBatch.DrawString(playerNameLabelSpriteFont, playerNameLabelString, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2 - 50),
                                     Color.White, 0f, playerNameLabelOrigin, 1f, SpriteEffects.None, .5f);
-            spriteBatch.DrawString(playerNameEntrySpriteFont, playerNameString, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2 -15),
+            spriteBatch.DrawString(playerNameEntrySpriteFont, playerAmoeba.Name, new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2 -15),
                                     Color.Black, 0f, playerNameEntryOrigin, 1f, SpriteEffects.None, .5f);
         }
 
         //Use this function to draw the SpriteFonts into the game
         public void drawStrings() {
             string radiusString = "Radius: " + playerAmoeba.Radius;
-            string playerString = playerNameString;
-            string playerBackgroundString = playerNameString;
+            string playerString = playerAmoeba.Name;
+            string playerBackgroundString = playerAmoeba.Name;
             string gameClockString = String.Format("Gametime: {0:00}:{1:00}:{2:00}", Math.Round(gameClockHours, 0) % 60, Math.Round(gameClockMinutes, 0) % 60, Math.Round(gameClockSeconds, 0) % 60);
             Vector2 FontOrigin = radiusSpriteFont.MeasureString(radiusString) / 2;
             Vector2 playerFontOrigin = playerSpriteFont.MeasureString(playerString) / 2;
@@ -353,17 +359,22 @@ namespace Amoeba
          */
         public void drawPlayer()
         {
-            setNewPlayerCoordinates();
-            ///Player information     
-            scale2 = (float)playerAmoeba.Radius / (playerAmoeba.Texture.Width / 2f);
+            foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
+            {
 
-            float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
+                setNewPlayerCoordinates();
+                ///Player information     
+                scale2 = (float)playerAmoeba.Radius / (playerAmoeba.Texture.Width / 2f);
 
-            playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius), (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
-            Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
+                float magicNumber = (float)Math.Pow(scale2, 200f * scale2);
 
-            //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
-            spriteBatch.Draw(playerAmoeba.Texture, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, .2f);
+                playerPosition = new Vector2((float)playerAmoeba.XCoordinate - ((float)playerAmoeba.Radius), (float)playerAmoeba.YCoordinate - ((float)playerAmoeba.Radius));
+                Vector2 origin = new Vector2((float)Mouse.GetState().Position.X * magicNumber, (float)Mouse.GetState().Position.Y * magicNumber);
+
+                //Draw player      Texture,    position,     rect,    color,   rot, origin, scale,     effects,      depth  
+                spriteBatch.Draw(playerAmoeba.Texture, playerPosition, null, Color.White, 0f, origin, scale2, SpriteEffects.None, .2f);
+            
+            }
         }
 
         /* *****summary*****
@@ -371,7 +382,7 @@ namespace Amoeba
          */
         public void drawBackgroundObjects()
         {          
-            for(int i = 0; i < 500; i++)
+            for(int i = 0; i < maxStarPopulation; i++)
                 spriteBatch.Draw(starTexture, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starTexture.Width), SpriteEffects.None, .4f);           
         }
 
@@ -436,17 +447,39 @@ namespace Amoeba
         protected void HandleInput(object sender, TextInputEventArgs e)
         {
             char charEntered = e.Character;
+            if (gameState == GameStates.Menu)
+            {
+                if (charEntered == '\r')
+                {
+                    gameState = GameStates.Playing;
+                }
+                else if (charEntered == '\b' && playerAmoeba.Name.Length != 0)
+                {
+                    playerAmoeba.Name = playerAmoeba.Name.Remove(playerAmoeba.Name.Length - 1);
+                }
+                else if (charEntered == '\b')
+                { 
+                    //Do Nothing}
+                }
+                else playerAmoeba.Name += charEntered;
+            }
+            else if (gameState == GameStates.Playing)
+            {
+                // TODO space bar split functionality
+                if (charEntered == ' ')
+                {
+                    //Upon space bar hit, split player in half, clone player, new texture draw
+                    if(playerState != PlayerState.MaxSplit)
+                        splitPlayer();
+                }
+                // TODO Eject mass functionality
+                else if (charEntered == 'w')
+                {
+                    //Upon 'w' key hit, shoot part of player mass forward
+                    //ejectMass();
 
-            if (charEntered == '\r')
-            {
-                gameState = GameStates.Playing;
+                }
             }
-            else if (charEntered == '\b')
-            {
-                playerNameString = playerNameString.Remove(playerNameString.Length - 1);
-            }
-            else 
-                playerNameString += charEntered;
         }
 
 
@@ -486,171 +519,193 @@ namespace Amoeba
                 HandleFoodCollision(this, EventArgs.Empty);
         }
 
+        public void splitPlayer()
+        {
+            //calculate new player mass for existing objects
+            //take half player's mass, new object with new mass
+            foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
+            {
+                playerAmoeba.Radius = playerAmoeba.Radius / 2;
+
+                newPlayerAmoeba = new AmoebaGameModels.Amoeba(playerAmoeba.Radius, playerAmoeba.Name);
+                newPlayerAmoeba.Texture = playerAmoeba.Texture;
+
+            }
+            
+            //accelerate upon splitting
+            newPlayerAmoeba.Radius = 50;
+            playerAmoebaList.Add(newPlayerAmoeba);
+        }
+
         // Determines the new location of the player for the next time it is drawn, stores in playerAmoeba.[X/Y]Coordinate
         protected void setNewPlayerCoordinates()
         {
-            Decimal Xmouse = Mouse.GetState().Position.X + (decimal) camera.Position.X;
-            Decimal Ymouse = Mouse.GetState().Position.Y + (decimal) camera.Position.Y;
-            double Xplayer = playerAmoeba.XCoordinate;
-            double Yplayer = playerAmoeba.YCoordinate;
-            Decimal Xdif = Xmouse - (Decimal) Xplayer;
-            Decimal Ydif = Ymouse - (Decimal) Yplayer;
-            Decimal MousePlayerDist = (decimal)Math.Sqrt(Math.Pow((double)Xdif, 2) + Math.Pow((double)Ydif, 2)); // pathagorean theorem
-
-            Decimal Angle;
-            Decimal Opposite1;
-            Decimal Adjacent1;
-            Decimal NewXdistance;
-            Decimal NewYdistance;
-            int Quadrant;
-
-
-            if (playerAmoeba.Wordy == true) { 
-                Console.WriteLine(" ----------------------------------- ");
-                Console.WriteLine("MouseX: " + Xmouse + ", " + Mouse.GetState().Position.X);
-                Console.WriteLine("MouseY: " + Ymouse + ", " + Mouse.GetState().Position.Y);
-                Console.WriteLine("beginning X: " + Xplayer + ", " + playerAmoeba.XCoordinate);
-                Console.WriteLine("beginning Y: " + Yplayer + ", " + playerAmoeba.YCoordinate);
-            }
-
-            // Determine quadrant the mouse is in relative to player position
-            if (Xdif > 0)
+            foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
             {
-                if (Ydif > 0) { Quadrant = 1; }
-                else { Quadrant = 4; }
-            }
-            else
-            {
-                if (Ydif > 0) { Quadrant = 2; }
-                else { Quadrant = 3; }
-            }
+                Decimal Xmouse = Mouse.GetState().Position.X + (decimal)camera.Position.X;
+                Decimal Ymouse = Mouse.GetState().Position.Y + (decimal)camera.Position.Y;
+                double Xplayer = playerAmoeba.XCoordinate;
+                double Yplayer = playerAmoeba.YCoordinate;
+                Decimal Xdif = Xmouse - (Decimal)Xplayer;
+                Decimal Ydif = Ymouse - (Decimal)Yplayer;
+                Decimal MousePlayerDist = (decimal)Math.Sqrt(Math.Pow((double)Xdif, 2) + Math.Pow((double)Ydif, 2)); // pathagorean theorem
 
-            // Set triangle side values for triangle between mouse and player position
-            switch (Quadrant)
-            {
-                case 1:
-                    Opposite1 = Xdif;
-                    Adjacent1 = Ydif;
-                    break;
-                case 2:
-                    Opposite1 = Ydif;
-                    Adjacent1 = Math.Abs(Xdif);
-                    break;
-                case 3:
-                    Opposite1 = Math.Abs(Xdif);
-                    Adjacent1 = Math.Abs(Ydif);
-                    break;
-                case 4:
-                    Opposite1 = Math.Abs(Ydif);
-                    Adjacent1 = Xdif;
-                    break;
-                default:
-                    Opposite1 = 0;
-                    Adjacent1 = 0;
-                    break;
-            }
+                Decimal Angle;
+                Decimal Opposite1;
+                Decimal Adjacent1;
+                Decimal NewXdistance;
+                Decimal NewYdistance;
+                int Quadrant;
 
-            // Use tan to determine the angle of interest
-            if (Adjacent1 == 0)
-            {
-                Angle = 0;
-            }
-            else
-            {
-                Angle = (decimal)Math.Atan((double)(Opposite1 / Adjacent1));
-            }
-
-            switch (Quadrant)
-            {
-                case 1:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
-                    break;
-                case 2:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
-                    break;
-                case 3:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
-                    break;
-                case 4:
-                    NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
-                    NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
-                    break;
-                default:
-                    NewXdistance = 0;
-                    NewYdistance = 0;
-                    break;
-            }
-
-            if (MousePlayerDist > playerAmoeba.Radius)
-            {
-                if (playerAmoeba.XCoordinate > 10000) 
-                {
-                    playerAmoeba.XCoordinate = 0;
-                }
-                else if (playerAmoeba.XCoordinate < 0)
-                {
-                    playerAmoeba.XCoordinate = 10000;
-                    
-                }
-                if (playerAmoeba.YCoordinate > 10000)
-                {
-                    playerAmoeba.YCoordinate = 0;
-                }
-                else if (playerAmoeba.YCoordinate < 0)
-                {
-                    playerAmoeba.YCoordinate = 10000;
-                }
-
-                playerAmoeba.YCoordinate += (double) NewYdistance;
-                playerAmoeba.XCoordinate += (double) NewXdistance;
-                playerAmoeba.XSpeed = NewXdistance;              
-                playerAmoeba.YSpeed = NewYdistance;
 
                 if (playerAmoeba.Wordy == true)
                 {
-                    Console.WriteLine("Mouse outside radius");
-                    Console.WriteLine("New X dist: " + NewXdistance);
-                    Console.WriteLine("New Y dist: " + NewYdistance);
-                    Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
-                    Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
-                    //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                    Console.WriteLine(" ----------------------------------- ");
+                    Console.WriteLine("MouseX: " + Xmouse + ", " + Mouse.GetState().Position.X);
+                    Console.WriteLine("MouseY: " + Ymouse + ", " + Mouse.GetState().Position.Y);
+                    Console.WriteLine("beginning X: " + Xplayer + ", " + playerAmoeba.XCoordinate);
+                    Console.WriteLine("beginning Y: " + Yplayer + ", " + playerAmoeba.YCoordinate);
                 }
-            }
-            else
-            {
-                if (playerAmoeba.XCoordinate > 10000)
-                {
-                    playerAmoeba.XCoordinate = 0;
-                }
-                else if (playerAmoeba.XCoordinate < 0)
-                {
-                    playerAmoeba.XCoordinate = 10000;
 
-                }
-                if (playerAmoeba.YCoordinate > 10000)
+                // Determine quadrant the mouse is in relative to player position
+                if (Xdif > 0)
                 {
-                    playerAmoeba.YCoordinate = 0;
+                    if (Ydif > 0) { Quadrant = 1; }
+                    else { Quadrant = 4; }
                 }
-                else if (playerAmoeba.YCoordinate < 0)
+                else
                 {
-                    playerAmoeba.YCoordinate = 10000;
+                    if (Ydif > 0) { Quadrant = 2; }
+                    else { Quadrant = 3; }
                 }
-                playerAmoeba.XCoordinate += (double) ( (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
-                playerAmoeba.YCoordinate += (double) ( (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius );
-                playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
-                playerAmoeba.YSpeed = (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
 
-                if (playerAmoeba.Wordy == true)
+                // Set triangle side values for triangle between mouse and player position
+                switch (Quadrant)
                 {
-                    Console.WriteLine("Mouse inside radius");
-                    Console.WriteLine("New X dist: " + (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
-                    Console.WriteLine("New Y dist: " + (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
-                    Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
-                    Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
-                    //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                    case 1:
+                        Opposite1 = Xdif;
+                        Adjacent1 = Ydif;
+                        break;
+                    case 2:
+                        Opposite1 = Ydif;
+                        Adjacent1 = Math.Abs(Xdif);
+                        break;
+                    case 3:
+                        Opposite1 = Math.Abs(Xdif);
+                        Adjacent1 = Math.Abs(Ydif);
+                        break;
+                    case 4:
+                        Opposite1 = Math.Abs(Ydif);
+                        Adjacent1 = Xdif;
+                        break;
+                    default:
+                        Opposite1 = 0;
+                        Adjacent1 = 0;
+                        break;
+                }
+
+                // Use tan to determine the angle of interest
+                if (Adjacent1 == 0)
+                {
+                    Angle = 0;
+                }
+                else
+                {
+                    Angle = (decimal)Math.Atan((double)(Opposite1 / Adjacent1));
+                }
+
+                switch (Quadrant)
+                {
+                    case 1:
+                        NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
+                        NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
+                        break;
+                    case 2:
+                        NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
+                        NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle);
+                        break;
+                    case 3:
+                        NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
+                        NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle) * -1;
+                        break;
+                    case 4:
+                        NewXdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Cos((double)Angle);
+                        NewYdistance = playerAmoeba.MaxTravelDistance * (decimal)Math.Sin((double)Angle) * -1;
+                        break;
+                    default:
+                        NewXdistance = 0;
+                        NewYdistance = 0;
+                        break;
+                }
+
+                if (MousePlayerDist > playerAmoeba.Radius)
+                {
+                    if (playerAmoeba.XCoordinate > 10000)
+                    {
+                        playerAmoeba.XCoordinate = 0;
+                    }
+                    else if (playerAmoeba.XCoordinate < 0)
+                    {
+                        playerAmoeba.XCoordinate = 10000;
+
+                    }
+                    if (playerAmoeba.YCoordinate > 10000)
+                    {
+                        playerAmoeba.YCoordinate = 0;
+                    }
+                    else if (playerAmoeba.YCoordinate < 0)
+                    {
+                        playerAmoeba.YCoordinate = 10000;
+                    }
+
+                    playerAmoeba.YCoordinate += (double)NewYdistance;
+                    playerAmoeba.XCoordinate += (double)NewXdistance;
+                    playerAmoeba.XSpeed = NewXdistance;
+                    playerAmoeba.YSpeed = NewYdistance;
+
+                    if (playerAmoeba.Wordy == true)
+                    {
+                        Console.WriteLine("Mouse outside radius");
+                        Console.WriteLine("New X dist: " + NewXdistance);
+                        Console.WriteLine("New Y dist: " + NewYdistance);
+                        Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
+                        Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
+                        //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                    }
+                }
+                else
+                {
+                    if (playerAmoeba.XCoordinate > 10000)
+                    {
+                        playerAmoeba.XCoordinate = 0;
+                    }
+                    else if (playerAmoeba.XCoordinate < 0)
+                    {
+                        playerAmoeba.XCoordinate = 10000;
+
+                    }
+                    if (playerAmoeba.YCoordinate > 10000)
+                    {
+                        playerAmoeba.YCoordinate = 0;
+                    }
+                    else if (playerAmoeba.YCoordinate < 0)
+                    {
+                        playerAmoeba.YCoordinate = 10000;
+                    }
+                    playerAmoeba.XCoordinate += (double)((Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                    playerAmoeba.YCoordinate += (double)((Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                    playerAmoeba.XSpeed = (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
+                    playerAmoeba.YSpeed = (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius;
+
+                    if (playerAmoeba.Wordy == true)
+                    {
+                        Console.WriteLine("Mouse inside radius");
+                        Console.WriteLine("New X dist: " + (Xdif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                        Console.WriteLine("New Y dist: " + (Ydif * playerAmoeba.MaxTravelDistance) / playerAmoeba.Radius);
+                        Console.WriteLine("New X: " + playerAmoeba.XCoordinate);
+                        Console.WriteLine("New Y: " + playerAmoeba.YCoordinate);
+                        //Console.WriteLine("Speed: " + playerAmoeba.Speed);
+                    }
                 }
             }
 
