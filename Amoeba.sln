@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaGameModels", "AmoebaGameModels\AmoebaGameModels.csproj", "{943C0F0E-B5E8-4476-A33E-D32A757DE31C}"
 EndProject
@@ -10,10 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaServerTest", "AmoebaServerTest\AmoebaServerTest.csproj", "{DC44FB45-F8BA-4402-A2E1-B1586075C0FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmoebaGameModelsTest", "AmoebaGameModelsTest\AmoebaGameModelsTest.csproj", "{26046204-C78D-4B96-BCA2-42532C0D71C5}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amoeba", "Amoeba\Amoeba.csproj", "{C9A0C40D-D1F7-4071-847F-6D6B32305A60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Content\Content.contentproj", "{317A34FD-3A98-4F2A-884C-9BE828CFC671}"
->>>>>>> 4ffeb75d9788f653c48706944fa78052a8ca0131
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amoeba", "Amoeba\Amoeba.csproj", "{B753845C-B180-470E-930E-FF7369FAC1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,22 +63,16 @@ Global
 		{26046204-C78D-4B96-BCA2-42532C0D71C5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{26046204-C78D-4B96-BCA2-42532C0D71C5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{26046204-C78D-4B96-BCA2-42532C0D71C5}.Release|x86.ActiveCfg = Release|Any CPU
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Debug|x86.ActiveCfg = Debug|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Debug|x86.Build.0 = Debug|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Release|Any CPU.ActiveCfg = Release|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Release|Mixed Platforms.Build.0 = Release|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Release|x86.ActiveCfg = Release|x86
-		{C9A0C40D-D1F7-4071-847F-6D6B32305A60}.Release|x86.Build.0 = Release|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Debug|x86.ActiveCfg = Debug|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Release|Any CPU.ActiveCfg = Release|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{317A34FD-3A98-4F2A-884C-9BE828CFC671}.Release|x86.ActiveCfg = Release|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Debug|x86.ActiveCfg = Debug|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Debug|x86.Build.0 = Debug|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Release|Any CPU.ActiveCfg = Release|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Release|Mixed Platforms.Build.0 = Release|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Release|x86.ActiveCfg = Release|x86
+		{B753845C-B180-470E-930E-FF7369FAC1B8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
