@@ -15,9 +15,7 @@ namespace AmoebaServer
             Boolean isCanceled = false;
             GameBoard board = new GameBoard ();
             Amoeba recievedAmoeba;
-
-            serverObject.Listen ();
-
+            
             Task.Factory.StartNew (() =>
             {
                 if (Console.ReadLine ().Equals ("cancel", StringComparison.InvariantCultureIgnoreCase))
@@ -26,6 +24,8 @@ namespace AmoebaServer
                 }
             });
 
+            serverObject.Listen ();
+
             while (isCanceled != true)
             {
                 foreach (Amoeba amoeba in board.GamePieces.Values)
@@ -33,12 +33,15 @@ namespace AmoebaServer
                     serverObject.SendToAll (amoeba.ToByteArray ());
                 }
 
-                foreach (Byte [] amoebaArray in serverObject.DataList.Values)
+                Parallel.ForEach (serverObject.DataList.Values, amoebaArray =>
                 {
-                    Amoeba.TryParse (amoebaArray.Skip(8).ToArray (), out recievedAmoeba);
+                    Amoeba.TryParse (amoebaArray.Skip (8).ToArray (), out recievedAmoeba);
                     board.GamePieces [recievedAmoeba.CellId] = recievedAmoeba;
-                }
+                });
 
+                board.SearchForCellsEating ();
+                board.MoveFoodPieces ();
+                
             }
         }
     }

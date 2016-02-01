@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Content;
+using System.Threading.Tasks;
 
 namespace AmoebaGameModels
 {
@@ -23,7 +24,42 @@ namespace AmoebaGameModels
 
         public List <Amoeba> GetFoodPieces ()
         {
-            return GamePieces.Values.Where (x => x.Radius == this.FoodSize).ToList ();
+            return GamePieces.Values.Where (x => x.Name == null).ToList ();
+        }
+
+        /// <summary>
+        /// Searches list of amoebas and food, updates if any ate other ones, and removes the eaten ones
+        /// </summary>
+        public void SearchForCellsEating ()
+        {
+            List<Amoeba> collidedAmoebas = null;
+            Parallel.ForEach (this.GamePieces.Values, amoeba =>
+            {
+                collidedAmoebas = this.GamePieces.Values.Where (x => Math.Pow ((double)(x.XCoordinate - amoeba.XCoordinate), 2) +
+                    Math.Pow ((double)(x.YCoordinate - amoeba.YCoordinate), 2) < (double)amoeba.Radius).ToList ();
+                if(collidedAmoebas.Count > 0)
+                {
+                    foreach (Amoeba collision in collidedAmoebas)
+                    {
+                        amoeba.Eat (collision);
+                        this.GamePieces.Remove (collision.CellId);
+                    }
+                }
+            });
+        }
+
+
+        /// <summary>
+        /// Updates all of the food pieces managed by the server to new positions 
+        /// </summary>
+        public void MoveFoodPieces ()
+        {
+            List <Amoeba> foodPieces = this.GamePieces.Values.Where (x => x.Name == null).ToList ();
+            Parallel.ForEach (foodPieces, food =>
+            {
+                food.XCoordinate += food.randomX;
+                food.YCoordinate += food.randomY;
+            });
         }
 
         public void GenerateFood ()
@@ -34,6 +70,7 @@ namespace AmoebaGameModels
             {
                 Amoeba amoeba = CreateNewFood ();
                 GamePieces.Add (amoeba.CellId, amoeba);
+                currentFoodPieces++;
             }
         }
 
@@ -44,20 +81,22 @@ namespace AmoebaGameModels
          */
         public Amoeba CreateNewFood ()
         {
+            Random randomNumberGen = new Random ();
             Amoeba newFood = new Amoeba (FoodSize);
-            //grab random color and x,y for food
-            String [] colorArray  = new string[] { "BlueFood", "RedFood", "GreenFood", "YellowFood", "PinkFood" };
-            Random randomNumberGen  = new Random();
-            Random randomColorGen  = new Random();
-            String randomColor = colorArray[randomColorGen.Next(0, colorArray.Length - 1)];
-            Int32 randomX = randomNumberGen.Next(0, Width);
-            Int32 randomY = randomNumberGen.Next(0, Height);
-
-            //Set x and y
-            newFood.XCoordinate = randomX;
-            newFood.YCoordinate = randomY;
-
+            newFood.GenerateRotation ();
+            newFood.GenerateVelocity ();
+            newFood.XCoordinate = randomNumberGen.Next (0, this.Width);
+            newFood.YCoordinate = randomNumberGen.Next (0, this.Height);
             return newFood;
+        }
+
+        public Amoeba PlaceNewPlayer ()
+        {
+            Amoeba newAmoeba = new Amoeba (FoodSize);
+            int randomX;
+            int randomY;            
+
+            return newAmoeba;
         }
 
     }
