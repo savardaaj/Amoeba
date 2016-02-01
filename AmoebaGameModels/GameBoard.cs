@@ -15,16 +15,24 @@ namespace AmoebaGameModels
         public Int32 Width { get; private set; }
         public Int32 Height { get; private set; }
         public Decimal FoodSize { get; private set; }
-        public  Int32 MaxFoodPieces { get; private set; }
+        public Decimal PlayerSize { get; private set; }
+        public Int32 MaxFoodPieces { get; private set; }
 
         public Dictionary <Guid, Amoeba> GamePieces;
 
         public GameBoard ()
-        { }
+        {
+            this.GamePieces = new Dictionary<Guid, Amoeba> ();
+        }
 
         public List <Amoeba> GetFoodPieces ()
         {
             return GamePieces.Values.Where (x => x.Name == null).ToList ();
+        }
+
+        public List <Amoeba> GetPlayerPieces ()
+        {
+            return GamePieces.Values.Where (x => x.Name != null).ToList ();
         }
 
         /// <summary>
@@ -48,13 +56,12 @@ namespace AmoebaGameModels
             });
         }
 
-
         /// <summary>
         /// Updates all of the food pieces managed by the server to new positions 
         /// </summary>
         public void MoveFoodPieces ()
         {
-            List <Amoeba> foodPieces = this.GamePieces.Values.Where (x => x.Name == null).ToList ();
+            List<Amoeba> foodPieces = GetFoodPieces ();
             Parallel.ForEach (foodPieces, food =>
             {
                 food.XCoordinate += food.randomX;
@@ -74,7 +81,6 @@ namespace AmoebaGameModels
             }
         }
 
-        
         /*
          * This function generates random color and coordinates for food objects. 
          * It also sets the texture and coordinates for the object 
@@ -90,11 +96,25 @@ namespace AmoebaGameModels
             return newFood;
         }
 
-        public Amoeba PlaceNewPlayer ()
+
+        /// <summary>
+        /// Creates a new amoeba object and ensures that it is spawned in an open area
+        /// </summary>
+        /// <returns>The newly spawned amoeba</returns>
+        public Amoeba PlaceNewPlayer (String playerName)
         {
-            Amoeba newAmoeba = new Amoeba (FoodSize);
-            int randomX;
-            int randomY;            
+            Random randomNumberGen = new Random ();
+            Amoeba newAmoeba = new Amoeba (PlayerSize, playerName);
+            List<Amoeba> players = this.GetPlayerPieces ();
+            int randomX = randomNumberGen.Next (0, this.Width);
+            int randomY = randomNumberGen.Next (0, this.Height);
+     
+            while(this.GamePieces.Values.Where (x => Math.Pow ((double)(x.XCoordinate - randomX), 2) +
+                    Math.Pow ((double)(x.YCoordinate - randomY), 2) < (double)newAmoeba.Radius).ToList ().Count > 0)
+            {
+                randomX = randomNumberGen.Next (0, this.Width);
+                randomY = randomNumberGen.Next (0, this.Height);
+            }
 
             return newAmoeba;
         }
