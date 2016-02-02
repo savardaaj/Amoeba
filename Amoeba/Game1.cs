@@ -23,6 +23,7 @@ namespace Amoeba
         string gameClockString;
         Vector2 FontOrigin;
         Vector2 playerFontOrigin;
+        Decimal initialRadius;
         #endregion
 
         #region Game Related Fields
@@ -384,56 +385,8 @@ namespace Amoeba
         {
             foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
             {
-                if (playerAmoeba.Radius < 35)
-                {
-                    //Start as Pluto
-                    playerAmoeba.Texture = Pluto;
-                }
-                else if (playerAmoeba.Radius < 40)
-                {
-                    //Mercury
-                    playerAmoeba.Texture = Mercury;
-                }
-                else if (playerAmoeba.Radius < 50)
-                {
-                    //Mars
-                    playerAmoeba.Texture = Mars;
-                }
-                else if (playerAmoeba.Radius < 60)
-                {
-                    //Venus
-                    playerAmoeba.Texture = Venus;
-                }
-                else if (playerAmoeba.Radius < 65)
-                {
-                    //Earth
-                    playerAmoeba.Texture = Earth;
-                }
-                else if (playerAmoeba.Radius < 75)
-                {
-                    //Neptune
-                    playerAmoeba.Texture = Neptune;
-                }
-                else if (playerAmoeba.Radius < 85)
-                {
-                    //Uranus
-                    playerAmoeba.Texture = Uranus;
-                }
-                else if (playerAmoeba.Radius < 100)
-                {
-                    //Saturn
-                    playerAmoeba.Texture = Saturn;
-                }
-                else if (playerAmoeba.Radius < 120)
-                {
-                    //Jupiter
-                    playerAmoeba.Texture = Jupiter;
-                }
-                else if (playerAmoeba.Radius < 150)
-                {
-                    //Sun
-                    playerAmoeba.Texture = Sun;
-                }
+                setPlayerTexture(playerAmoeba);
+
                 setNewPlayerCoordinates();
                 ///Player information     
                 scale2 = (float)playerAmoeba.Radius / (playerAmoeba.Texture.Width / 2f);
@@ -456,6 +409,61 @@ namespace Amoeba
         {          
             for(int i = 0; i < maxStarPopulation; i++)
                 spriteBatch.Draw(starTexture, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starTexture.Width), SpriteEffects.None, .4f);           
+        }
+
+        public void setPlayerTexture(AmoebaGameModels.Amoeba playerAmoeba)
+        {
+            //Calculate texture relative to player size
+            if (playerAmoeba.Radius < 35)
+            {
+                //Start as Pluto
+                playerAmoeba.Texture = Pluto;
+            }
+            else if (playerAmoeba.Radius < 40)
+            {
+                //Mercury
+                playerAmoeba.Texture = Mercury;
+            }
+            else if (playerAmoeba.Radius < 50)
+            {
+                //Mars
+                playerAmoeba.Texture = Mars;
+            }
+            else if (playerAmoeba.Radius < 60)
+            {
+                //Venus
+                playerAmoeba.Texture = Venus;
+            }
+            else if (playerAmoeba.Radius < 65)
+            {
+                //Earth
+                playerAmoeba.Texture = Earth;
+            }
+            else if (playerAmoeba.Radius < 75)
+            {
+                //Neptune
+                playerAmoeba.Texture = Neptune;
+            }
+            else if (playerAmoeba.Radius < 85)
+            {
+                //Uranus
+                playerAmoeba.Texture = Uranus;
+            }
+            else if (playerAmoeba.Radius < 100)
+            {
+                //Saturn
+                playerAmoeba.Texture = Saturn;
+            }
+            else if (playerAmoeba.Radius < 120)
+            {
+                //Jupiter
+                playerAmoeba.Texture = Jupiter;
+            }
+            else if (playerAmoeba.Radius < 150)
+            {
+                //Sun
+                playerAmoeba.Texture = Sun;
+            }
         }
 
         /*
@@ -542,11 +550,16 @@ namespace Amoeba
             { }
         }
 
-        //
+        //When player splits, don't let the player amoeba's stack on top of wach other
+        public void splitCollisionCheck()
+        {
+
+        }
+
         public void projectEjectedMass(AmoebaGameModels.Amoeba ejectedMass)
         {
             
-            
+            //Project the ejected mass based on player position and speed
             if (ejectedMass.EjectedMassTravelDistance < 10) {
                 ejectedMass.XCoordinate += (ejectedMass.Velocity.X * 2.5) + (float)playerAmoeba.XSpeed;
                 ejectedMass.YCoordinate += (ejectedMass.Velocity.Y * 2.5) + (float)playerAmoeba.YSpeed;
@@ -632,19 +645,21 @@ namespace Amoeba
          */
         public void splitPlayer()
         {
+            initialRadius = playerAmoeba.Radius;
             //calculate new player mass for existing objects
             //take half player's mass, new object with new mass
-            foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
+            foreach (AmoebaGameModels.Amoeba splitAmoeba in playerAmoebaList)
             {
-                playerAmoeba.Radius = playerAmoeba.Radius / 2;
+                splitAmoeba.Radius = initialRadius / 2;
 
-                newPlayerAmoeba = new AmoebaGameModels.Amoeba(playerAmoeba.Radius, playerAmoeba.Name);
-                newPlayerAmoeba.Texture = playerAmoeba.Texture;
+                newPlayerAmoeba = new AmoebaGameModels.Amoeba(splitAmoeba.Radius, splitAmoeba.Name);
+                newPlayerAmoeba.Texture = splitAmoeba.Texture;
+                newPlayerAmoeba.XCoordinate = playerAmoeba.XCoordinate;
+                newPlayerAmoeba.YCoordinate = playerAmoeba.YCoordinate;
+                newPlayerAmoeba.Velocity = new Vector2((float)NewXdistance, (float)NewYdistance);
 
             }
 
-            //accelerate upon splitting
-            newPlayerAmoeba.Radius = 50;
             playerAmoebaList.Add(newPlayerAmoeba);
         }
 
