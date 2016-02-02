@@ -70,6 +70,8 @@ namespace Amoeba
         //Array to store different color foods
         string[] colorArray;
 
+        Texture2D Pluto, Mercury, Mars, Venus, Earth, Neptune, Uranus, Saturn, Jupiter, Sun;
+
         Random randomNumberGen;
         Random randomColorGen;
         string randomColor;
@@ -175,7 +177,17 @@ namespace Amoeba
         {          
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
+            Pluto= Content.Load<Texture2D>("Pluto");
+            Mercury= Content.Load<Texture2D>("Mercury");
+            Mars = Content.Load<Texture2D>("Mars");
+            Venus = Content.Load<Texture2D>("Venus");
+            Earth = Content.Load<Texture2D>("Earth");
+            Neptune = Content.Load<Texture2D>("Neptune");
+            Uranus = Content.Load<Texture2D>("Uranus");
+            Saturn = Content.Load<Texture2D>("Saturn");
+            Jupiter = Content.Load<Texture2D>("Jupiter");
+            Sun = Content.Load<Texture2D>("Sun");
             playerAmoeba.Texture = Content.Load<Texture2D>("GreenPlayer");
             starTexture = Content.Load<Texture2D>("star");
 
@@ -372,7 +384,56 @@ namespace Amoeba
         {
             foreach (AmoebaGameModels.Amoeba playerAmoeba in playerAmoebaList)
             {
-
+                if (playerAmoeba.Radius < 35)
+                {
+                    //Start as Pluto
+                    playerAmoeba.Texture = Pluto;
+                }
+                else if (playerAmoeba.Radius < 40)
+                {
+                    //Mercury
+                    playerAmoeba.Texture = Mercury;
+                }
+                else if (playerAmoeba.Radius < 50)
+                {
+                    //Mars
+                    playerAmoeba.Texture = Mars;
+                }
+                else if (playerAmoeba.Radius < 60)
+                {
+                    //Venus
+                    playerAmoeba.Texture = Venus;
+                }
+                else if (playerAmoeba.Radius < 65)
+                {
+                    //Earth
+                    playerAmoeba.Texture = Earth;
+                }
+                else if (playerAmoeba.Radius < 75)
+                {
+                    //Neptune
+                    playerAmoeba.Texture = Neptune;
+                }
+                else if (playerAmoeba.Radius < 85)
+                {
+                    //Uranus
+                    playerAmoeba.Texture = Uranus;
+                }
+                else if (playerAmoeba.Radius < 100)
+                {
+                    //Saturn
+                    playerAmoeba.Texture = Saturn;
+                }
+                else if (playerAmoeba.Radius < 120)
+                {
+                    //Jupiter
+                    playerAmoeba.Texture = Jupiter;
+                }
+                else if (playerAmoeba.Radius < 150)
+                {
+                    //Sun
+                    playerAmoeba.Texture = Sun;
+                }
                 setNewPlayerCoordinates();
                 ///Player information     
                 scale2 = (float)playerAmoeba.Radius / (playerAmoeba.Texture.Width / 2f);

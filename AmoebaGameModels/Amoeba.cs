@@ -79,7 +79,7 @@ namespace AmoebaGameModels
         public Amoeba()
         {
             CellId = Guid.NewGuid();
-            this.Radius = 35;
+            this.Radius = 20;
             this.XSpeed = 0;
             this.YSpeed = 0;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
@@ -123,7 +123,7 @@ namespace AmoebaGameModels
         public Decimal EatEjectedMass(Amoeba Mass)
         {
             //this.radius = (Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5)));
-            this.Radius += (Decimal) 1.75;
+            this.Radius += (Decimal) 1.82;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
             Scale += .1f;
             return this.Radius;
