@@ -24,6 +24,7 @@ namespace AmoebaGameModels
         public Vector2 Velocity { get; set; }
         public float Scale { get; set; }
         public float Spin { get; set; }
+        public double EjectedMassTravelDistance { get; set; }
         #endregion
 
         #region Public Properties
@@ -103,6 +104,7 @@ namespace AmoebaGameModels
             this.Name = name;
             this.XSpeed = 0;
             this.YSpeed = 0;
+            this.EjectedMassTravelDistance = 0;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
         }
         #endregion
@@ -112,7 +114,16 @@ namespace AmoebaGameModels
         public Decimal Eat(Amoeba Food)
         {
             //this.radius = (Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5)));
-            this.Radius += 1;
+            this.Radius += (Decimal) 1.2;
+            this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
+            Scale += .1f;
+            return this.Radius;
+        }
+
+        public Decimal EatEjectedMass(Amoeba Mass)
+        {
+            //this.radius = (Convert.ToDecimal(Math.Pow(Math.Pow((double) this.radius, 2) + Math.Pow((double) Food.radius, 2), (double) .5)));
+            this.Radius += (Decimal) 1.75;
             this.maxtraveldistance = (Decimal)25 * Convert.ToDecimal(Math.Pow(Convert.ToDouble(this.Radius), -0.439));
             Scale += .1f;
             return this.Radius;
