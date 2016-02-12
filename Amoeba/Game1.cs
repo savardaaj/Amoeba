@@ -408,7 +408,7 @@ namespace Amoeba
         public void drawBackgroundObjects()
         {          
             for(int i = 0; i < maxStarPopulation; i++)
-                spriteBatch.Draw(starTexture, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starTexture.Width), SpriteEffects.None, .4f);           
+                spriteBatch.Draw(starTexture, starPositions[i], null, Color.White, 0f, new Vector2(0, 0), (starSizes[i] / starTexture.Width), SpriteEffects.None, .9f);           
         }
 
         public void setPlayerTexture(AmoebaGameModels.Amoeba playerAmoeba)
@@ -556,6 +556,9 @@ namespace Amoeba
 
         }
 
+        /* *****Summary*****
+         * Shoot the mass the player ejects by increasing and decreaing x/y coordinates
+         */
         public void projectEjectedMass(AmoebaGameModels.Amoeba ejectedMass)
         {
             
@@ -576,12 +579,17 @@ namespace Amoeba
             }
             else if (ejectedMass.EjectedMassTravelDistance < 25)
             {
+                ejectedMass.XCoordinate += ejectedMass.Velocity.X * 1 + (float)playerAmoeba.XSpeed;
+                ejectedMass.YCoordinate += ejectedMass.Velocity.Y * 1 + (float)playerAmoeba.YSpeed;
+            }
+            else if (ejectedMass.EjectedMassTravelDistance < 35)
+            {
                 ejectedMass.XCoordinate += ejectedMass.Velocity.X * .5 + (float)playerAmoeba.XSpeed;
                 ejectedMass.YCoordinate += ejectedMass.Velocity.Y * .5 + (float)playerAmoeba.YSpeed;
             }
-            else if (ejectedMass.EjectedMassTravelDistance > 25)
+            else if (ejectedMass.EjectedMassTravelDistance > 40)
             {
-                //Do nothing
+                //Do Nothing
             }
 
             ejectedMass.EjectedMassTravelDistance++;
@@ -641,7 +649,7 @@ namespace Amoeba
         /* *****summary*****
          * This function will calculate the new player size and split the player accordingly
          * Currently works like shit
-         * TODO Fix the split
+         * TODO Fix the shit split
          */
         public void splitPlayer()
         {
@@ -706,10 +714,7 @@ namespace Amoeba
             //targetFood.XCoordinate += vP1.X;
             //targetFood.YCoordinate += vP1.Y;
 
-            //nearbyFood.X += 1;
-            //nearbyFood.Y += 1;
-            //targetFood.XCoordinate += -1;
-            //targetFood.YCoordinate += -1;
+            
 
             //w = v - u: new Vector(targetFood.X, targetFood.Y) - u;
             //v' = w - u: w parallel to wall, u perpendicular to wall
@@ -721,38 +726,36 @@ namespace Amoeba
         //Calls onFoodCollision event which calls HandleFoodCollision
         public void foodCollisionDetection() {
 
-            ////food collision stuff
-            quadTree.clear();
-            for (int i = 0; i < foodAmoebaList.Count; i++)
-            {
-                quadTree.insert(new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
-            }
-            //Returned objects are the objects that are next to the food amoeba at i
-            ArrayList returnObjects = new ArrayList();
+            //////food collision stuff
+            //quadTree.clear();
+            //for (int i = 0; i < foodAmoebaList.Count; i++)
+            //{
+            //    quadTree.insert(new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
+            //}
+            ////Returned objects are the objects that are next to the food amoeba at i
+            //ArrayList returnObjects = new ArrayList();
 
-            for (int i = 0; i < foodAmoebaList.Count; i++)
-            {
-                returnObjects.Clear();
-                returnObjects = quadTree.retrieve(returnObjects, new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
-                targetFood = foodAmoebaList[i];
-                v1 = new Vector2((float)targetFood.XCoordinate, (float)targetFood.YCoordinate);
-                for (int x = 0; x < returnObjects.Count; x++)
-                {
-                    nearbyFood = (Rectangle)returnObjects[x];
+            //for (int i = 0; i < foodAmoebaList.Count; i++)
+            //{
+            //    returnObjects.Clear();
+            //    returnObjects = quadTree.retrieve(returnObjects, new Rectangle((int)foodAmoebaList[i].XCoordinate, (int)foodAmoebaList[i].YCoordinate, (int)foodAmoebaList[i].Radius, (int)foodAmoebaList[i].Radius));
+            //    targetFood = foodAmoebaList[i];
+            //    v1 = new Vector2((float)targetFood.XCoordinate, (float)targetFood.YCoordinate);
+            //    for (int x = 0; x < returnObjects.Count; x++)
+            //    {
+            //        nearbyFood = (Rectangle)returnObjects[x];
 
-                    // Run collision detection algorithm between objects
-                    // TODO Detecting Every object for some reason, bad. fix. FIX
+            //        // Run collision detection algorithm between objects
+            //        // TODO Detecting Every object for some reason, bad. fix. FIX
 
-                    if (targetFood.XCoordinate + (double)targetFood.Radius > nearbyFood.X &&
-                        targetFood.YCoordinate + (double)targetFood.Radius > nearbyFood.Y &&
-                        targetFood.XCoordinate - (double)targetFood.Radius < nearbyFood.X &&
-                        targetFood.YCoordinate - (double)targetFood.Radius < nearbyFood.Y)
-                    {
-                        OnFoodCollision();
-                    }
+            //        //if (targetFood.XCoordinate + (double)targetFood.Radius > nearbyFood.X &&
+            //        //    targetFood.YCoordinate + (double)targetFood.Radius > nearbyFood.Y &&
+            //        //    targetFood.XCoordinate - (double)targetFood.Radius < nearbyFood.X &&
+            //        //    targetFood.YCoordinate - (double)targetFood.Radius < nearbyFood.Y)
+            //        //{
 
-                }
-            }
+            //    }
+            //}
 
         }
 
